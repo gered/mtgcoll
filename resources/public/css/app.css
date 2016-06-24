@@ -1,0 +1,153 @@
+div.popover.card-image {
+	max-width: none;
+}
+
+div.popover.inventory {
+	max-width: none;
+}
+
+div.popover.card-image .popover-content {
+	padding: 5px;
+}
+
+#logo {
+	padding: 10px;
+}
+
+#logo > span {
+	padding-right: 7px;
+}
+
+div.card-title > h1 > small {
+	margin-left: 30px;
+}
+
+.card .card-image {
+	text-align: center;
+}
+
+.card .card-details .details-row .details-label {
+	font-weight: bold;
+	text-align: right;
+}
+.card .card-details .details-row + .details-row {
+	padding-top: 10px;
+}
+.card .card-details .card-details-table + .card-details-table {
+	margin-top: 15px;
+}
+
+.card .card-details .card-text p:last-child {
+	margin-bottom: 0px;
+}
+
+.card .card-variations {
+	margin-top: 15px;
+	font-size: 18px;
+}
+
+.card-printings-table.scroll {
+	height: 300px;
+	overflow-y: scroll;
+}
+
+.card-printings-table.scroll > table {
+	margin-bottom: auto;
+}
+
+.inventory-container {
+	width: 300px;
+}
+
+.inventory-container .row:hover {
+	background-color: #f5f5f5;
+}
+
+.search-filters .form-group {
+	margin-bottom: auto;
+}
+
+.search-filters > .row {
+	margin-bottom: 15px;
+}
+
+.search-filters > .row > .alert {
+	margin-bottom: auto;
+}
+
+.cards-list .paging .pagination,
+.cards-list .paging .pager {
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.cards-list .paging > div + div {
+	margin-left: 20px;
+}
+
+.set-details {
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+	border-bottom: 1px solid #eee;
+}
+
+.set-details .details-label {
+	text-align: right;
+	font-weight: bold;
+}
+
+.statistics-container .header {
+	position: relative;
+}
+
+.statistics-container .settings {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.statistics-container .settings .form-group + .form-group {
+	margin-left: 20px;
+}
+
+.statistics .widget-row + .widget-row {
+	margin-top: 40px;
+}
+
+.statistics .big-number-statistic .title {
+	text-align: center;
+	font-size: 18px;
+}
+
+.statistics .big-number-statistic .number {
+	text-align: center;
+	font-size: 42px;
+	font-weight: bold;
+}
+
+.statistics .widget .title {
+	text-align: center;
+	font-size: 18px;
+	margin-bottom: 10px;
+}
+
+.statistics .chart-container {
+	position: relative;
+}
+
+.statistics .chart-container .legend-left {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.statistics .chart-container .legend-left ul {
+	list-style: none;
+}
+
+.statistics .chart-container .legend-left li span {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	margin-right: 5px;
+}

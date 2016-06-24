@@ -1,0 +1,79 @@
+(defproject mtgcoll "0.1.0-SNAPSHOT"
+  :description  "FIXME: write description"
+  :url          "http://example.com/FIXME"
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojurescript "1.8.51"]
+                 [ring "1.4.0"]
+                 [ring/ring-defaults "0.2.0"]
+                 [compojure "1.4.0"]
+                 [org.immutant/web "2.1.4"]
+
+                 [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/java.jdbc "0.6.1"]
+                 [org.postgresql/postgresql "9.4.1208.jre7"]
+                 [com.taoensso/sente "1.8.1"]
+                 [gered/views "1.5-SNAPSHOT"]
+                 [gered/views.sql "0.1.0-SNAPSHOT"]
+                 [gered/views.reagent "0.2.1-SNAPSHOT"]
+                 [gered/views.reagent.sente "0.1.0-SNAPSHOT"]
+                 [gered/webtools "0.1.1"]
+                 [gered/webtools.reagent "0.1.1"]
+                 [hiccup "1.0.5"]
+                 [reagent "0.6.0-alpha2"]
+                 [secretary "1.2.3"]
+                 [clj-http "2.2.0"]
+                 [honeysql "0.7.0"]
+                 [ring-middleware-format "0.7.0"]
+                 [ragtime "0.6.0"]
+                 [enlive "1.1.6"]
+                 [slugger "1.0.1"]
+                 [cheshire "5.6.1"]
+                 [com.novemberain/pantomime "2.8.0"]
+                 [cljsjs/chartjs "2.0.1-0"]
+
+                 [gered/config "0.1"]]
+
+  :plugins       [[lein-cljsbuild "1.1.3"]
+                  [lein-figwheel "0.5.4-1"]]
+
+  :main          mtgcoll.core
+
+  :repl-options  {:init-ns user}
+
+  :clean-targets ^{:protect false} [:target-path
+                                    [:cljsbuild :builds :main :compiler :output-dir]
+                                    [:cljsbuild :builds :main :compiler :output-to]]
+  :cljsbuild     {:builds {:main
+                           {:source-paths ["src"]
+                            :figwheel     true
+                            :compiler     {:main          mtgcoll.client.core
+                                           :output-to     "resources/public/cljs/app.js"
+                                           :output-dir    "resources/public/cljs/target"
+                                           :asset-path    "cljs/target"
+                                           :source-map    true
+                                           :optimizations :none
+                                           :pretty-print  true}}}}
+
+  ;:figwheel      {:nrepl-port 7880}
+
+  :profiles      {:dev     {:source-paths   ["env/dev/src"]
+                            :resource-paths ["env/dev/resources"]
+                            :dependencies   [[pjstadig/humane-test-output "0.8.0"]]
+                            :injections     [(require 'pjstadig.humane-test-output)
+                                             (pjstadig.humane-test-output/activate!)]
+                            :cljsbuild      {:builds {:main {:source-paths ["env/dev/src"]}}}}
+
+                  :uberjar {:env       {}
+                            :aot       :all
+                            :hooks     [leiningen.cljsbuild]
+                            :cljsbuild {:jar      true
+                                        :figwheel false
+                                        :builds   {:main
+                                                   {:compiler ^:replace {:output-to     "resources/public/cljs/app.js"
+                                                                         :optimizations :advanced
+                                                                         :pretty-print  false}}}}}}
+
+  :aliases       {"uberjar"  ["do" ["clean"] ["uberjar"]]
+                  "cljsdev"  ["do" ["cljsbuild" "once"] ["cljsbuild" "auto"]]
+                  "migrate"  ["run" "-m" "user/migrate"]
+                  "rollback" ["run" "-m" "user/rollback"]})
