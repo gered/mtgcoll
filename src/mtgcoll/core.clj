@@ -11,9 +11,12 @@
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
     [views.reagent.sente.server :as vr]
 
-    [config.core :as config]
-    [mtgcoll.config :refer [config]]
+    [mtgcoll.cli :refer [parse-cli-args]]
+    [mtgcoll.config :as config]
     [mtgcoll.db :as db]
+    [mtgcoll.models.mtgjson :refer [load-mtgjson-data!]]
+    [mtgcoll.scrapers.image-assets :refer [download-gatherer-set-images! download-gatherer-symbol-images!]]
+    [mtgcoll.scrapers.common :refer [update-prices!]]
     [mtgcoll.views.core :as views]
     [mtgcoll.views.sente :as sente]
     [mtgcoll.routes.main-page :refer [main-page-routes]]
@@ -22,11 +25,12 @@
 
 (defn init
   []
-  (log/info "Starting up ...")
+  (log/info "Starting up web application ...")
 
-  (when (config/get config :dev?)
+  (when (config/get :dev?)
     (log/info "Running in development environment."))
 
+  (db/setup-config!)
   (db/verify-connection)
   (sente/init!)
   (views/init!)
@@ -41,7 +45,7 @@
 
 (defn wrap-env-middleware
   [handler]
-  (if (config/get config :dev?)
+  (if (config/get :dev?)
     (-> handler (wrap-reload))
     handler))
 
@@ -62,6 +66,34 @@
   (init)
   (immutant/run #'handler {:port 8080}))
 
+(defn stop-server
+  []
+  (immutant/stop)
+  (shutdown))
+
+
 (defn -main
   [& args]
-  (run-server))
+  (let [{:keys [options action arguments]} (parse-cli-args args)]
+    (config/load! (:config options))
+    (db/setup-config!)
+    (db/verify-connection)
+    (case action
+      :web
+      (run-server)
+
+      :setup-db
+      (db/initialize-database!)
+
+      :load-json
+      (load-mtgjson-data! (first arguments))
+
+      :scrape-prices
+      (if (seq arguments)
+        (update-prices! (first arguments))
+        (update-prices!))
+
+      :scrape-set-images
+      (do
+        (download-gatherer-set-images!)
+        (download-gatherer-symbol-images!)))))

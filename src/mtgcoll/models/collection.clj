@@ -9,9 +9,9 @@
   ;; written assuming postgresql server is _not_ 9.5+ (so, without access to UPSERT functionality)
   (with-view-transaction
     view-system
-    [dt db]
+    [dt @db]
     (let [num-updates (first
-                        (vexec! view-system db
+                        (vexec! view-system dt
                                 ["update collection
                                   set quantity = quantity + ?
                                   where card_id = ? and
@@ -19,7 +19,7 @@
                                  quantity-change card-id quality]))]
       (if (= 0 num-updates)
         (first
-          (vexec! view-system db
+          (vexec! view-system dt
                   ["insert into collection
                     (card_id, quality, quantity)
                     values

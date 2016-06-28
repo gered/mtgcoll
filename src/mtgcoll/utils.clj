@@ -1,6 +1,8 @@
 (ns mtgcoll.utils
   (:require
-    [clojure.string :as string])
+    [clojure.string :as string]
+    [clojure.java.io :as io]
+    [clj-http.client :as http])
   (:import
     (java.io ByteArrayInputStream InputStream)
     (java.text Normalizer Normalizer$Form)))
@@ -35,3 +37,16 @@
         (.replace "”" "\"")
         (.replace "–" "-")
         (.replaceAll "[^\\p{ASCII}]" ""))))
+
+(defn file-exists?
+  [filename]
+  (if-not (string/blank? filename)
+    (let [file (io/file filename)]
+      (.exists file))))
+
+(defn download-as-byte-array
+  [url]
+  (let [response (http/get url {:headers chrome-osx-request-headers :as :byte-array})
+        body     (:body response)]
+    (if-not (empty? body)
+      body)))

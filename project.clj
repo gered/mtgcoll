@@ -9,6 +9,7 @@
                  [org.immutant/web "2.1.4"]
 
                  [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/java.jdbc "0.6.1"]
                  [org.postgresql/postgresql "9.4.1208.jre7"]
                  [com.taoensso/sente "1.8.1"]

@@ -5,8 +5,7 @@
     [hiccup.element :refer [javascript-tag]]
     [webtools.page :refer [html5 js-env-settings]]
     [webtools.reagent.page :refer [include-bootstrap-metatags include-bootstrap-css]]
-    [config.core :as config]
-    [mtgcoll.config :refer [config]]))
+    [mtgcoll.config :as config]))
 
 (defn main-page
   [request]
@@ -18,7 +17,7 @@
      (include-css "css/app.css")]
     [:body
      [:div#app [:h1 "Please wait, loading ..."]]
-     (js-env-settings "" (boolean (config/get config :dev?)))
+     (js-env-settings "" (boolean (config/get :dev?)))
      (include-js "cljs/app.js")]))
 
 (def main-page-routes

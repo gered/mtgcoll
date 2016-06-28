@@ -4,11 +4,18 @@
     [honeysql.core :as hsql]
     [mtgcoll.db :refer [db]]))
 
+(defn get-card-image-info
+  [card-id]
+  (sql/query @db ["select set_code, image_name
+                   from cards
+                   where id = ?" card-id]
+             {:result-set-fn first}))
+
 (defn get-card-db-image
   [card-id]
-  (let [result (sql/query db ["select image_bytes, mimetype
-                               from card_images
-                               where card_id = ?" card-id]
+  (let [result (sql/query @db ["select image_bytes, mimetype
+                                from card_images
+                                where card_id = ?" card-id]
                           {:result-set-fn first})]
     (if (:image_bytes result)
       result)))
@@ -28,28 +35,32 @@
                                    [:= :number number]))
                          (remove nil? x)
                          (vec x))}]
-    (seq (sql/query db (hsql/format q) {:row-fn :id}))))
+    (seq (sql/query @db (hsql/format q) {:row-fn :id}))))
 
 (defn update-price!
   [card-id price-source price online?]
   ;; written assuming postgresql server is _not_ 9.5+ (so, without access to UPSERT functionality)
   (sql/with-db-transaction
-    [dt db]
+    [dt @db]
     (let [num-updates (first
-                        (sql/execute! db ["update card_prices
-                                           set price = ?,
-                                               last_updated_at = current_timestamp
-                                           where card_id = ? and
-                                                 source = ? and
-                                                 online = ?"
-                                          price card-id (name price-source) online?]))]
+                        (sql/execute!
+                          dt
+                          ["update card_prices
+                            set price = ?,
+                                last_updated_at = current_timestamp
+                            where card_id = ? and
+                                  source = ? and
+                                  online = ?"
+                           price card-id (name price-source) online?]))]
       (if (= 0 num-updates)
         (first
-          (sql/execute! db ["insert into card_prices
-                             (card_id, source, online, price, last_updated_at)
-                             values
-                             (?, ?, ?, ?, current_timestamp)"
-                            card-id (name price-source) online? price]))
+          (sql/execute!
+            dt
+            ["insert into card_prices
+              (card_id, source, online, price, last_updated_at)
+              values
+              (?, ?, ?, ?, current_timestamp)"
+             card-id (name price-source) online? price]))
         num-updates))))
 
 (defn update-prices!
