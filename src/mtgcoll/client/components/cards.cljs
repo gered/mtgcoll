@@ -80,7 +80,7 @@
                      ^{:key id}
                      [:tr {:class (if (and (not no-owned-highlight?) owned?) "warning")}
                       [:td [card-link id name :block-element? true]]
-                      [:td [set-short-label set_code set_name]]
+                      [:td [:a {:href (->url "#/set/" set_code)} [set-short-label set_code set_name]]]
                       [:td [symboled-markup mana_cost]]
                       [:td (str type
                                 (if (or power toughness)
