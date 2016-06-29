@@ -5,7 +5,8 @@
     [clj-http.client :as http])
   (:import
     (java.io ByteArrayInputStream InputStream)
-    (java.text Normalizer Normalizer$Form)))
+    (java.text Normalizer Normalizer$Form)
+    (java.util Properties)))
 
 (def chrome-osx-request-headers
   {"User-Agent" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36"
@@ -57,3 +58,14 @@
     (if (< (count s) n)
       (->> (repeat c) (concat s) (take n) (string/join))
       s)))
+
+(defn get-app-version
+  []
+  (if-let [version (System/getProperty "mtgcoll.version")]
+    version
+    (-> (doto (Properties.)
+          (.load (-> "META-INF/maven/%s/%s/pom.properties"
+                     (format "mtgcoll" "mtgcoll")
+                     (io/resource)
+                     (io/reader))))
+        (.get "version"))))
