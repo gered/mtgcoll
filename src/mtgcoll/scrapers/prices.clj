@@ -15,13 +15,12 @@
    (db/verify-connection)
    (if-let [price-scraper (get price-scrapers source)]
      (do
-       (doseq [set (sets/get-set-codes)]
-         (println "Scraping prices for set:" set)
+       (doseq [{:keys [code gatherer_code] :as set} (sets/get-set-codes)]
+         (println "Scraping prices for set:" code (if gatherer_code (str "(" gatherer_code ")") ""))
          (let [{:keys [source prices normalized-name?]} (scrape price-scraper set)]
            (if prices
              (cards/update-prices! source prices {:normalized-name? normalized-name?})
-             (println "Could not obtain prices for set:" set))))
-       (views/put-hints! view-system [(views/hint nil #{:card_prices} hint-type)]))
+             (println "Could not obtain prices for set:" code (if gatherer_code (str "(" gatherer_code ")") ""))))))
      (println "No price scraper \"" source "\" found.")))
   ([]
    (println "Updating prices using all available scrapers.")
