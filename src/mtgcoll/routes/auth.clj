@@ -4,15 +4,12 @@
     [compojure.core :refer [routes GET POST]]
     [webtools.response :as response]
     [webtools.session :as session]
-    [mtgcoll.config :as config]))
+    [mtgcoll.auth :as auth]))
 
 (def auth-routes
   (routes
     (POST "/login" [username password :as request]
-      (if-let [user (->> (config/get :users)
-                         (filter #(and (= username (:username %))
-                                       (= password (:password %))))
-                         (first))]
+      (if-let [user (auth/validate-credentials username password)]
         (do
           (log/info username " logged in.")
           (-> (response/content "ok")
