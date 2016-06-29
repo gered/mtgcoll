@@ -47,10 +47,10 @@
 (defn parse-cli-args
   [args]
   (let [{:keys [options arguments errors summary] :as parsed-cli} (cli/parse-opts args cli-options)
-        arguments     (or arguments ["web"])
+        arguments     (or (seq arguments) ["web"])
         action        (first arguments)
         arguments     (rest arguments)
-        valid-action? (some #{action} (map first actions))]
+        valid-action? (boolean (some #{action} (map first actions)))]
     (cond
       (:help options)     (exit 0 (->usage-string summary))
       (not valid-action?) (exit 1 (->usage-string summary))
