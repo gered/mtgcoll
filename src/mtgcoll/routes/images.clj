@@ -19,7 +19,7 @@
         (let [filename   (str (config/get :card-images-path) "/" set_code "/" image_name ".jpg")
               image-file (if (file-exists? filename)
                            (io/file filename)
-                           (io/file (io/resource "public/img/cardback.jpg")))]
+                           (io/resource "public/img/cardback.jpg"))]
           (-> (io/input-stream image-file)
               (response/content)
               (response/content-type "image/jpeg")))))
@@ -29,5 +29,5 @@
             path (str (config/get :other-images-path) "/" (sanitize-path-arg type) "/" size "/" (sanitize-path-arg name) ".png")
             file (if (file-exists? path)
                    (io/file path)
-                   (io/file (io/resource (str "public/img/missing_symbol_" size ".png"))))]
+                   (io/resource (str "public/img/missing_symbol_" size ".png")))]
         file))))
