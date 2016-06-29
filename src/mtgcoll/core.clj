@@ -93,7 +93,7 @@
         (update-prices! (first arguments))
         (update-prices!))
 
-      :scrape-set-images
+      :scrape-images
       (do
         (download-gatherer-set-images!)
         (download-gatherer-symbol-images!)))))

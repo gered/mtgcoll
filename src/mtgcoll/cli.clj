@@ -15,7 +15,7 @@
    ["setup-db" "Initializes database"]
    ["load-json" "Loads mtgjson card/set data from specified json file"]
    ["scrape-prices" "Runs all price scrapers, updating card pricing"]
-   ["scrape-set-images" "Downloads set images from gatherer"]])
+   ["scrape-images" "Downloads set/mana/symbol images from Gatherer"]])
 
 (defn- ->actions-summary
   []
