@@ -12,15 +12,15 @@
   ["online" "near mint" "lightly played" "moderately played" "heavily played" "damaged"])
 
 (defn on-add-card
-  [card-id quality]
+  [card-id quality foil?]
   (ajax/POST (->url "/collection/add")
-             :params {:card-id card-id :quality quality}
+             :params {:card-id card-id :quality quality :foil foil?}
              :on-error #(set-error! "Server error while adding card to inventory.")))
 
 (defn on-remove-card
-  [card-id quality]
+  [card-id quality foil?]
   (ajax/POST (->url "/collection/remove")
-             :params {:card-id card-id :quality quality}
+             :params {:card-id card-id :quality quality :foil foil?}
              :on-error #(set-error! "Server error while adding card to inventory.")))
 
 (defvc inventory-management
@@ -28,26 +28,47 @@
   (let [inventory (view-cursor :owned-card card-id)
         inventory (group-by :quality @inventory)]
     [bs/Grid {:fluid true :class "inventory-container"}
+     [bs/Row
+      [bs/Col {:sm 4} ""]
+      [bs/Col {:sm 4 :class "text-center"} [:strong "Normal"]]
+      [bs/Col {:sm 4 :class "text-center"} [:strong "Foil"]]]
      (map-indexed
        (fn [idx quality]
-         (let [inventory (first (get inventory quality))
-               quantity  (or (:quantity inventory) 0)]
+         (let [inventory         (get inventory quality)
+               quantities        (group-by :foil inventory)
+               foil-quantity     (or (:quantity (first (get quantities true))) 0)
+               non-foil-quantity (or (:quantity (first (get quantities false))) 0)]
            ^{:key idx}
            [bs/Row
-            {:class (if (> quantity 0) "bg-warning")}
-            [bs/Col {:sm 6 :class "text-right"}
+            {:class (if (or (> foil-quantity 0)
+                            (> non-foil-quantity 0))
+                      "bg-warning")}
+            [bs/Col {:sm 4 :class "text-right"}
              [bs/FormControl.Static
               (str (string/capitalize quality) ": ")]]
-            [bs/Col {:sm 2}
+            ;; non-foil
+            [bs/Col {:sm 1}
              [bs/FormControl.Static
-              [:strong quantity]]]
-            [bs/Col {:sm 4}
+              [:strong non-foil-quantity]]]
+            [bs/Col {:sm 3}
              [bs/ButtonGroup {:justified true}
               [bs/ButtonGroup
-               [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality)}
+               [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality false)}
                 [bs/Glyphicon {:glyph "plus"}]]]
               [bs/ButtonGroup
-               [bs/Button {:bsStyle "danger" :disabled (= 0 quantity) :on-click #(on-remove-card card-id quality)}
+               [bs/Button {:bsStyle "danger" :disabled (= 0 non-foil-quantity) :on-click #(on-remove-card card-id quality false)}
+                [bs/Glyphicon {:glyph "minus"}]]]]]
+            ;; foil
+            [bs/Col {:sm 1}
+             [bs/FormControl.Static
+              [:strong foil-quantity]]]
+            [bs/Col {:sm 3}
+             [bs/ButtonGroup {:justified true}
+              [bs/ButtonGroup
+               [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality true)}
+                [bs/Glyphicon {:glyph "plus"}]]]
+              [bs/ButtonGroup
+               [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true)}
                 [bs/Glyphicon {:glyph "minus"}]]]]]]))
        qualities)]))
 

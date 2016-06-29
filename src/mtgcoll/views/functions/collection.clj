@@ -2,7 +2,7 @@
 
 (defn owned-card
   [card-id]
-  ["select quality, quantity
+  ["select quality, quantity, foil
     from collection
     where card_id = ?"
    card-id])

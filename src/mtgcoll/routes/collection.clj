@@ -6,10 +6,10 @@
 
 (def collection-routes
   (routes
-    (POST "/collection/add" [card-id quality]
-      (collection/add-to-collection! card-id quality)
+    (POST "/collection/add" [card-id quality foil]
+      (collection/add-to-collection! card-id quality foil)
       (response/json {:status "ok"}))
 
-    (POST "/collection/remove" [card-id quality]
-      (collection/remove-from-collection! card-id quality)
+    (POST "/collection/remove" [card-id quality foil]
+      (collection/remove-from-collection! card-id quality foil)
       (response/json {:status "ok"}))))
