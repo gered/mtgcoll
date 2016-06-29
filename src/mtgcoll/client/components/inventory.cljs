@@ -28,49 +28,54 @@
   (let [inventory (view-cursor :owned-card card-id)
         inventory (group-by :quality @inventory)]
     [bs/Grid {:fluid true :class "inventory-container"}
-     [bs/Row
-      [bs/Col {:sm 4} ""]
-      [bs/Col {:sm 4 :class "text-center"} [:strong "Normal"]]
-      [bs/Col {:sm 4 :class "text-center"} [:strong "Foil"]]]
-     (map-indexed
-       (fn [idx quality]
-         (let [inventory         (get inventory quality)
-               quantities        (group-by :foil inventory)
-               foil-quantity     (or (:quantity (first (get quantities true))) 0)
-               non-foil-quantity (or (:quantity (first (get quantities false))) 0)]
-           ^{:key idx}
-           [bs/Row
-            {:class (if (or (> foil-quantity 0)
-                            (> non-foil-quantity 0))
-                      "bg-warning")}
-            [bs/Col {:sm 4 :class "text-right"}
-             [bs/FormControl.Static
-              (str (string/capitalize quality) ": ")]]
-            ;; non-foil
-            [bs/Col {:sm 1}
-             [bs/FormControl.Static
-              [:strong non-foil-quantity]]]
-            [bs/Col {:sm 3}
-             [bs/ButtonGroup {:justified true}
-              [bs/ButtonGroup
-               [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality false)}
-                [bs/Glyphicon {:glyph "plus"}]]]
-              [bs/ButtonGroup
-               [bs/Button {:bsStyle "danger" :disabled (= 0 non-foil-quantity) :on-click #(on-remove-card card-id quality false)}
-                [bs/Glyphicon {:glyph "minus"}]]]]]
-            ;; foil
-            [bs/Col {:sm 1}
-             [bs/FormControl.Static
-              [:strong foil-quantity]]]
-            [bs/Col {:sm 3}
-             [bs/ButtonGroup {:justified true}
-              [bs/ButtonGroup
-               [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality true)}
-                [bs/Glyphicon {:glyph "plus"}]]]
-              [bs/ButtonGroup
-               [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true)}
-                [bs/Glyphicon {:glyph "minus"}]]]]]]))
-       qualities)]))
+     [bs/Table
+      {:condensed true :hover true :bordered true}
+      [:thead
+       [:tr
+        [:th ""]
+        [:th {:col-span 2} [:span.text-center "Normal"]]
+        [:th {:col-span 2} [:span.text-center "Foil"]]]]
+      [:tbody
+       (map-indexed
+         (fn [idx quality]
+           (let [inventory         (get inventory quality)
+                 quantities        (group-by :foil inventory)
+                 foil-quantity     (or (:quantity (first (get quantities true))) 0)
+                 non-foil-quantity (or (:quantity (first (get quantities false))) 0)]
+             ^{:key idx}
+             [:tr
+              {:class (if (or (> foil-quantity 0)
+                              (> non-foil-quantity 0))
+                        "bg-warning")}
+              [:td.quality-label.col-sm-4
+               [:span.text-right
+                [bs/FormControl.Static
+                 (str (string/capitalize quality) ": ")]]]
+              ;; non-foil
+              [:td.quantity.col-sm-1
+               [bs/FormControl.Static
+                [:strong non-foil-quantity]]]
+              [:td.col-sm-3
+               [bs/ButtonGroup {:justified true}
+                [bs/ButtonGroup
+                 [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality false)}
+                  [bs/Glyphicon {:glyph "plus"}]]]
+                [bs/ButtonGroup
+                 [bs/Button {:bsStyle "danger" :disabled (= 0 non-foil-quantity) :on-click #(on-remove-card card-id quality false)}
+                  [bs/Glyphicon {:glyph "minus"}]]]]]
+              ;; foil
+              [:td.quantity.col-sm-1
+               [bs/FormControl.Static
+                [:strong foil-quantity]]]
+              [:td.col-sm-3
+               [bs/ButtonGroup {:justified true}
+                [bs/ButtonGroup
+                 [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality true)}
+                  [bs/Glyphicon {:glyph "plus"}]]]
+                [bs/ButtonGroup
+                 [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true)}
+                  [bs/Glyphicon {:glyph "minus"}]]]]]]))
+         qualities)]]]))
 
 (defn inventory
   [card-id & [{:keys [num-owned owned? button-size button-style] :as opts}]]
