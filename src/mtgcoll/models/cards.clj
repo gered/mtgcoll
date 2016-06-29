@@ -11,15 +11,6 @@
                    where id = ?" card-id]
              {:result-set-fn first}))
 
-(defn get-card-db-image
-  [card-id]
-  (let [result (sql/query @db ["select image_bytes, mimetype
-                                from card_images
-                                where card_id = ?" card-id]
-                          {:result-set-fn first})]
-    (if (:image_bytes result)
-      result)))
-
 (defn get-matching-card-ids
   [card-name set-code & [{:keys [split? normalized-name? number]}]]
   (let [q {:select [:id]
