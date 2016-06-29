@@ -40,8 +40,11 @@
 (defn shutdown
   []
   (log/info "Shutting down ...")
+
   (views/shutdown!)
-  (sente/init!))
+  (sente/shutdown!)
+
+  (log/info "Application stopped."))
 
 (defn wrap-env-middleware
   [handler]
@@ -61,16 +64,23 @@
       (sente/wrap-sente "/chsk")
       (wrap-defaults (assoc-in site-defaults [:security :anti-forgery] false))))
 
-(defn run-server
+(defn start-server!
   []
   (init)
-  (immutant/run #'handler {:port 8080}))
+  (immutant/run
+    #'handler
+    (merge
+      {:port         8080
+       :host         "localhost"
+       :path         "/"
+       :virtual-host nil
+       :dispatch?    true}
+      (config/get :web))))
 
-(defn stop-server
+(defn stop-server!
   []
-  (immutant/stop)
-  (shutdown))
-
+  (if (immutant/stop)
+    (shutdown)))
 
 (defn -main
   [& args]
@@ -80,7 +90,9 @@
     (db/verify-connection)
     (case action
       :web
-      (run-server)
+      (do
+        (start-server!)
+        (.addShutdownHook (Runtime/getRuntime) (Thread. ^Runnable stop-server!)))
 
       :setup-db
       (db/initialize-database!)
