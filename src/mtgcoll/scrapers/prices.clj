@@ -1,4 +1,4 @@
-(ns mtgcoll.scrapers.common
+(ns mtgcoll.scrapers.prices
   (:require
     [views.core :as views]
     [views.sql.core :refer [hint-type]]
@@ -6,7 +6,7 @@
     [mtgcoll.models.cards :as cards]
     [mtgcoll.models.sets :as sets]
     [mtgcoll.scrapers.protocols :refer [scrape]]
-    [mtgcoll.scrapers.list :refer [price-scrapers]]
+    [mtgcoll.scrapers.registered :refer [price-scrapers]]
     [mtgcoll.db :as db]))
 
 (defn update-prices!

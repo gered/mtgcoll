@@ -1,4 +1,4 @@
-(ns mtgcoll.scrapers.mtggoldfish
+(ns mtgcoll.scrapers.prices.mtggoldfish
   (:require
     [clojure.string :as string]
     [clj-http.client :as http]

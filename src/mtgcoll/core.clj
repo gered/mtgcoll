@@ -15,7 +15,7 @@
     [mtgcoll.db :as db]
     [mtgcoll.models.mtgjson :refer [load-mtgjson-data!]]
     [mtgcoll.scrapers.image-assets :refer [download-gatherer-set-images! download-gatherer-symbol-images!]]
-    [mtgcoll.scrapers.common :refer [update-prices!]]
+    [mtgcoll.scrapers.prices :refer [update-prices!]]
     [mtgcoll.views.core :as views]
     [mtgcoll.views.sente :as sente]
     [mtgcoll.routes.main-page :refer [main-page-routes]]
