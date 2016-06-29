@@ -66,7 +66,8 @@
            s.online_only,
            c.paper_price,
            c.online_price,
-           c.owned_count
+           c.owned_count,
+           c.owned_foil_count
     from cards c
     join sets s on c.set_code = s.code
     where c.id = ?" id])
@@ -137,39 +138,45 @@
       :< (compare-fn fields :< value))))
 
 (def search-field-where-clauses
-  {:name           (text-comparison-fn [:name :normalized_name])
-   :set-code       (text-comparison-fn [:set_code] true)
-   :colors         (fn [value comparison]
-                     (let [colors (as-> value x
-                                        (map string/trim x)
-                                        (map string/capitalize x)
-                                        (sort x))]
-                       (case comparison
-                         := [:= :colors (string/join "," colors)]
-                         :like [:ilike :colors (str "%" (string/join "%" colors) "%")])))
-   :color-identity (fn [value comparison]
-                     (let [colors (as-> value x
-                                        (map string/trim x)
-                                        (map string/upper-case x)
-                                        (sort x))]
-                       (case comparison
-                         := [:= :color_identity (string/join "," colors)]
-                         :like [:like :color_identity (str "%" (string/join "%" colors) "%")])))
-   :type           (text-comparison-fn [:type])
-   :rarity         (text-comparison-fn [:rarity] true)
-   :text           (text-comparison-fn [:text])
-   :artist         (text-comparison-fn [:artist])
-   :number         (text-comparison-fn [:number] true)
-   :power          (text-comparison-fn [:power] true)
-   :toughness      (text-comparison-fn [:toughness] true)
-   :owned-count    (numeric-comparison-fn [:owned_count])
-   :paper-price    (numeric-comparison-fn [:paper_price])
-   :online-price   (numeric-comparison-fn [:online_price])
-   :owned?         (fn [value comparison]
-                     (assert (= := comparison))
-                     (case value
-                       true [:> :owned_count 0]
-                       false [:= :owned_count 0]))})
+  {:name             (text-comparison-fn [:name :normalized_name])
+   :set-code         (text-comparison-fn [:set_code] true)
+   :colors           (fn [value comparison]
+                       (let [colors (as-> value x
+                                          (map string/trim x)
+                                          (map string/capitalize x)
+                                          (sort x))]
+                         (case comparison
+                           := [:= :colors (string/join "," colors)]
+                           :like [:ilike :colors (str "%" (string/join "%" colors) "%")])))
+   :color-identity   (fn [value comparison]
+                       (let [colors (as-> value x
+                                          (map string/trim x)
+                                          (map string/upper-case x)
+                                          (sort x))]
+                         (case comparison
+                           := [:= :color_identity (string/join "," colors)]
+                           :like [:like :color_identity (str "%" (string/join "%" colors) "%")])))
+   :type             (text-comparison-fn [:type])
+   :rarity           (text-comparison-fn [:rarity] true)
+   :text             (text-comparison-fn [:text])
+   :artist           (text-comparison-fn [:artist])
+   :number           (text-comparison-fn [:number] true)
+   :power            (text-comparison-fn [:power] true)
+   :toughness        (text-comparison-fn [:toughness] true)
+   :owned-count      (numeric-comparison-fn [:owned_count])
+   :owned-foil-count (numeric-comparison-fn [:owned_foil_count])
+   :paper-price      (numeric-comparison-fn [:paper_price])
+   :online-price     (numeric-comparison-fn [:online_price])
+   :owned?           (fn [value comparison]
+                       (assert (= := comparison))
+                       (case value
+                         true [:> :owned_count 0]
+                         false [:= :owned_count 0]))
+   :owned-foil?      (fn [value comparison]
+                       (assert (= := comparison))
+                       (case value
+                         true [:> :owned_foil_count 0]
+                         false [:= :owned_foil_count 0]))})
 
 (defn- filter->hsql-where-criteria
   [{:keys [field value comparison]}]
@@ -199,7 +206,8 @@
                                :c.loyalty
                                :c.paper_price
                                :c.online_price
-                               :c.owned_count]
+                               :c.owned_count
+                               :c.owned_foil_count]
                       :from   [[:cards :c]]
                       :join   [[:sets :s] [:= :c.set_code :s.code]]}
                      (if order-by

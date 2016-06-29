@@ -118,21 +118,23 @@
    :<    "Less Than"})
 
 (def search-filter-defs
-  {:name           {:label "Name" :type :text :comparisons [:like :=]}
-   :set-code       {:label "Set" :type :text :comparisons [:=] :component set-search-field-element}
-   :colors         {:label "Colors" :type :checkbox :comparisons [:like :=] :choices ["Black" "Blue" "Green" "Red" "White"] :component checkboxes-search-field-element}
-   :color-identity {:label "Color Identity" :type :checkbox :comparisons [:like :=] :choices [["Black" "B"] ["Blue" "U"] ["Green" "G"] ["Red" "R"] ["White" "W"]] :component checkboxes-search-field-element}
-   :type           {:label "Type" :type :text :comparisons [:like :=]}
-   :rarity         {:label "Rarity" :type :dropdown :comparisons [:=] :choices ["Basic Land" "Common" "Mythic Rare" "Rare" "Special" "Uncommon"]}
-   :text           {:label "Card Text" :type :text :comparisons [:like :=]}
-   :artist         {:label "Artist" :type :text :comparisons [:like :=]}
-   :number         {:label "Card Number" :type :text :comparisons [:=]}
-   :power          {:label "Power" :type :text :comparisons [:=]}
-   :toughness      {:label "Toughness" :type :text :comparisons [:=]}
-   :owned?         {:label "Owned?" :type :boolean :comparisons [:=]}
-   :owned-count    {:label "Owned Amount" :type :numeric :comparisons [:= :> :<] :validation-fn valid-integer? :transform-fn js/parseInt}
-   :paper-price    {:label "Price (Paper)" :type :numeric :comparisons [:= :> :<] :validation-fn valid-float? :transform-fn js/parseFloat}
-   :online-price   {:label "Price (Online)" :type :numeric :comparisons [:= :> :<] :validation-fn valid-float? :transform-fn js/parseFloat}})
+  {:name             {:label "Name" :type :text :comparisons [:like :=]}
+   :set-code         {:label "Set" :type :text :comparisons [:=] :component set-search-field-element}
+   :colors           {:label "Colors" :type :checkbox :comparisons [:like :=] :choices ["Black" "Blue" "Green" "Red" "White"] :component checkboxes-search-field-element}
+   :color-identity   {:label "Color Identity" :type :checkbox :comparisons [:like :=] :choices [["Black" "B"] ["Blue" "U"] ["Green" "G"] ["Red" "R"] ["White" "W"]] :component checkboxes-search-field-element}
+   :type             {:label "Type" :type :text :comparisons [:like :=]}
+   :rarity           {:label "Rarity" :type :dropdown :comparisons [:=] :choices ["Basic Land" "Common" "Mythic Rare" "Rare" "Special" "Uncommon"]}
+   :text             {:label "Card Text" :type :text :comparisons [:like :=]}
+   :artist           {:label "Artist" :type :text :comparisons [:like :=]}
+   :number           {:label "Card Number" :type :text :comparisons [:=]}
+   :power            {:label "Power" :type :text :comparisons [:=]}
+   :toughness        {:label "Toughness" :type :text :comparisons [:=]}
+   :owned?           {:label "Owned?" :type :boolean :comparisons [:=]}
+   :owned-foil?      {:label "Owned Foil?" :type :boolean :comparisons [:=]}
+   :owned-count      {:label "Owned Amount" :type :numeric :comparisons [:= :> :<] :validation-fn valid-integer? :transform-fn js/parseInt}
+   :owned-foil-count {:label "Owned Foil Amount" :type :numeric :comparisons [:= :> :<] :validation-fn valid-integer? :transform-fn js/parseInt}
+   :paper-price      {:label "Price (Paper)" :type :numeric :comparisons [:= :> :<] :validation-fn valid-float? :transform-fn js/parseFloat}
+   :online-price     {:label "Price (Online)" :type :numeric :comparisons [:= :> :<] :validation-fn valid-float? :transform-fn js/parseFloat}})
 
 (defn ->search-field-map
   [field & [filter-id]]
