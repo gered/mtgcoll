@@ -7,7 +7,7 @@
     [webtools.cljs.utils :refer [->url]]
     [mtgcoll.client.page :refer [set-active-breadcrumb!]]
     [mtgcoll.client.components.cards :refer [card-list-table ->card-list-pager]]
-    [mtgcoll.client.components.utils :refer [set-label set-heading th-sortable]]
+    [mtgcoll.client.components.utils :refer [set-image set-label set-heading th-sortable]]
     [mtgcoll.client.components.search :as s]
     [mtgcoll.client.utils :refer [format-date]]))
 
@@ -82,26 +82,29 @@
 
       :else
       [:div
-       [bs/PageHeader [set-heading (:code @set) (:name @set)]]
+       [bs/PageHeader (:name @set)]
        [bs/Grid {:fluid true :class "set-details"}
         [bs/Row
-         [bs/Col {:sm 2 :class "details-label"} "Code"]
-         [bs/Col {:sm 2} (:code @set)]
-         [bs/Col {:sm 2 :class "details-label"} "Release Date"]
-         [bs/Col {:sm 2} (format-date (:release_date @set))]]
-        [bs/Row
-         [bs/Col {:sm 2 :class "details-label"} "Border"]
-         [bs/Col {:sm 2} (string/capitalize (:border @set))]
-         [bs/Col {:sm 2 :class "details-label"} "Online"]
-         [bs/Col {:sm 2} (if (:online_only @set) "Yes" "No")]]
-        [bs/Row
-         [bs/Col {:sm 2 :class "details-label"} "Type"]
-         [bs/Col {:sm 2} (:type @set)]
-         [bs/Col {:sm 2 :class "details-label"} "Block"]
-         [bs/Col {:sm 2} (:block @set)]]
-        [bs/Row
-         [bs/Col {:sm 2 :class "details-label"} "Cards"]
-         [bs/Col {:sm 2} (or (:card_count @set) 0)]
-         [bs/Col {:sm 2 :class "details-label"} "Owned (Unique)"]
-         [bs/Col {:sm 2} (or (:owned_count @set) 0)]]]
+         [bs/Col {:sm 2 :class "text-center"} [set-image (:code @set) :size "large"]]
+         [bs/Col {:sm 10}
+          [bs/Row
+           [bs/Col {:sm 2 :class "details-label"} "Code"]
+           [bs/Col {:sm 2} (:code @set)]
+           [bs/Col {:sm 2 :class "details-label"} "Release Date"]
+           [bs/Col {:sm 2} (format-date (:release_date @set))]]
+          [bs/Row
+           [bs/Col {:sm 2 :class "details-label"} "Border"]
+           [bs/Col {:sm 2} (string/capitalize (:border @set))]
+           [bs/Col {:sm 2 :class "details-label"} "Online"]
+           [bs/Col {:sm 2} (if (:online_only @set) "Yes" "No")]]
+          [bs/Row
+           [bs/Col {:sm 2 :class "details-label"} "Type"]
+           [bs/Col {:sm 2} (:type @set)]
+           [bs/Col {:sm 2 :class "details-label"} "Block"]
+           [bs/Col {:sm 2} (:block @set)]]
+          [bs/Row
+           [bs/Col {:sm 2 :class "details-label"} "Cards"]
+           [bs/Col {:sm 2} (or (:card_count @set) 0)]
+           [bs/Col {:sm 2 :class "details-label"} "Owned (Unique)"]
+           [bs/Col {:sm 2} (or (:owned_count @set) 0)]]]]]
        [set-cards-list set-code]])))
