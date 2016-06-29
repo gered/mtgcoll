@@ -3,14 +3,6 @@
     [cljs.pprint :as pprint]
     [clojure.string :as string]))
 
-(defn dissoc-idx
-  [coll idx]
-  (vec (concat (subvec coll 0 idx) (subvec coll (inc idx)))))
-
-(defn pad
-  [n coll val]
-  (take n (concat coll (repeat val))))
-
 (defn format-date
   [date]
   (if (and date

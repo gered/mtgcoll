@@ -1,6 +1,5 @@
 (ns mtgcoll.client.routes.collection
   (:require
-    [clojure.string :as string]
     [reagent.core :as r]
     [views.reagent.client.component :as vc :refer [view-cursor] :refer-macros [defvc]]
     [webtools.reagent.bootstrap :as bs]

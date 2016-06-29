@@ -1,7 +1,6 @@
 (ns mtgcoll.routes.images
   (:require
     [clojure.java.io :as io]
-    [clojure.java.jdbc :as sql]
     [compojure.core :refer [routes GET POST]]
     [webtools.response :as response]
     [mtgcoll.config :as config]

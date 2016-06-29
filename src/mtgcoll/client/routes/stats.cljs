@@ -1,6 +1,5 @@
 (ns mtgcoll.client.routes.stats
   (:require
-    [clojure.string :as string]
     [reagent.core :as r]
     [cljsjs.chartjs]
     [views.reagent.client.component :as vc :refer [view-cursor] :refer-macros [defvc]]

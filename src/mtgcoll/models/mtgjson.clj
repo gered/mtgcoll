@@ -5,15 +5,12 @@
     [clojure.java.jdbc :as sql]
     [cheshire.core :as json]
     [pantomime.mime :refer [mime-type-of]]
-    [mtgcoll.config :as config]
-    [mtgcoll.db :refer [db]]
-    [mtgcoll.db :as db])
+    [mtgcoll.db :refer [db]])
   (:use
     mtgcoll.utils)
-  (:import (java.text SimpleDateFormat)
-           (java.sql Timestamp)))
-
-(def mtg-json-path (config/get :import :json-path))
+  (:import
+    (java.text SimpleDateFormat)
+    (java.sql Timestamp)))
 
 (defn load-json
   [json-file]

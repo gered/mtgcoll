@@ -1,9 +1,7 @@
 (ns mtgcoll.scrapers.image-assets
   (:require
-    [clojure.string :as string]
     [clojure.java.io :as io]
     [clojure.java.jdbc :as sql]
-    [clj-http.client :as http]
     [mtgcoll.db :refer [db]]
     [mtgcoll.config :as config])
   (:use

@@ -1,6 +1,4 @@
-(ns mtgcoll.views.functions.sets
-  (:require
-    [honeysql.core :as hsql]))
+(ns mtgcoll.views.functions.sets)
 
 (defn set-info
   [code]
