@@ -156,6 +156,7 @@
                          := [:= :color_identity (string/join "," colors)]
                          :like [:like :color_identity (str "%" (string/join "%" colors) "%")])))
    :type           (text-comparison-fn [:type])
+   :rarity         (text-comparison-fn [:rarity] true)
    :text           (text-comparison-fn [:text])
    :artist         (text-comparison-fn [:artist])
    :number         (text-comparison-fn [:number] true)

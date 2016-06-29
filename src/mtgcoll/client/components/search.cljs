@@ -71,6 +71,26 @@
           check-label]))
      choices)])
 
+(defn dropdown-search-field-element
+  [value on-change invalid? on-enter {:keys [choices] :as field-def}]
+  [bs/FormGroup
+   (if invalid? {:validation-state "error"})
+   [bs/FormControl
+    {:component-class "select"
+     :value           value
+     :on-change       #(on-change (get-field-value %))
+     :on-key-up       (fn [e]
+                        (if (= 13 (.-keyCode e))
+                          (if on-enter (on-enter))))}
+    (->> choices
+         (map
+           (fn [choice]
+             (let [[choice-label choice-value] (if (vector? choice) choice [choice choice])]
+               ^{:key choice-value}
+               [:option {:value choice-value} choice-label])))
+         (cons ^{:key ""} [:option ""]))]
+   (if invalid? [bs/FormControl.Feedback])])
+
 (defvc set-search-field-element
   [value on-change invalid? on-enter field-def]
   (let [sets (view-cursor :simple-sets-list)]
@@ -103,6 +123,7 @@
    :colors         {:label "Colors" :type :checkbox :comparisons [:like :=] :choices ["Black" "Blue" "Green" "Red" "White"] :component checkboxes-search-field-element}
    :color-identity {:label "Color Identity" :type :checkbox :comparisons [:like :=] :choices [["Black" "B"] ["Blue" "U"] ["Green" "G"] ["Red" "R"] ["White" "W"]] :component checkboxes-search-field-element}
    :type           {:label "Type" :type :text :comparisons [:like :=]}
+   :rarity         {:label "Rarity" :type :dropdown :comparisons [:=] :choices ["Basic Land" "Common" "Mythic Rare" "Rare" "Special" "Uncommon"]}
    :text           {:label "Card Text" :type :text :comparisons [:like :=]}
    :artist         {:label "Artist" :type :text :comparisons [:like :=]}
    :number         {:label "Card Number" :type :text :comparisons [:=]}
@@ -127,6 +148,7 @@
                           :boolean  false
                           :numeric  0
                           :text     ""
+                          :dropdown ""
                           :checkbox #{})
          :invalid?      false
          :validation-fn (:validation-fn field-def)
@@ -134,6 +156,7 @@
          :component     (or (:component field-def)
                             (case field-type
                               :boolean boolean-search-field-element
+                              :dropdown dropdown-search-field-element
                               generic-search-field-element))}
         (if filter-id
           {:filter-id filter-id})))))
