@@ -31,6 +31,8 @@
         "&nbsp; | &nbsp;"
         [:a {:href "https://github.com/gered/mtgcoll"} "Source code"] " licensed under MIT"]]]
      (js-env-settings "" (boolean (config/get :dev?)))
+     (javascript-tag
+       (string/join "\n" [(str "var __authRequired = " (boolean (seq (config/get :users))))]))
      (include-js "cljs/app.js")]))
 
 (def main-page-routes

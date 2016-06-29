@@ -20,7 +20,9 @@
   (reset! sente-socket
           (sente/make-channel-socket!
             sente-web-server-adapter
-            {:user-id-fn (fn [request] (get-in request [:params :client-id]))})))
+            {:user-id-fn        (fn [request] (get-in request [:params :client-id]))
+             :handshake-data-fn (fn [request]
+                                  {:user (get-in request [:session :user])})})))
 
 (defn shutdown!
   []

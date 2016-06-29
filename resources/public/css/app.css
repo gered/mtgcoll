@@ -45,6 +45,11 @@ div.popover.card-image .popover-content {
 	padding-right: 7px;
 }
 
+/* what the fuck? */
+ul.nav.navbar-nav.navbar-right {
+	padding-right: 20px;
+}
+
 div.card-title > h1 > small {
 	margin-left: 30px;
 }

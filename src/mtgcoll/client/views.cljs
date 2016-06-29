@@ -1,7 +1,8 @@
 (ns mtgcoll.client.views
   (:require
     [taoensso.sente :as sente]
-    [views.reagent.sente.client :as vr]))
+    [views.reagent.sente.client :as vr]
+    [mtgcoll.client.auth :as auth]))
 
 (defonce sente-socket (atom {}))
 
@@ -22,6 +23,27 @@
              (= :ws (:type state)))
       (.clearInterval js/window @(get-in @sente-socket [:chsk :kalive-timer_])))))
 
+(defn sente-event-msg-handler
+  [{:keys [event id client-id] :as ev}]
+  (let [[ev-id ev-data] event]
+    (cond
+      (and (= :chsk/state ev-id)
+           (:open? ev-data))
+      (vr/on-open! @sente-socket ev)
+
+      (= :chsk/handshake ev-id)
+      (let [[_ _ handshake-data] ev-data
+            {:keys [user]}       handshake-data]
+        (auth/set-user-profile! user))
+
+      (= :chsk/recv id)
+      (when-not (vr/on-receive! @sente-socket ev)
+        ; on-receive! returns true if the event was a views.reagent event and it
+        ; handled it.
+        ;
+        ; you could put your code to handle your app's own events here
+        ))))
+
 (defn reconnect!
   []
   (clear-keepalive-interval!)
@@ -32,4 +54,5 @@
   (if (chsk-exists?)
     (reconnect!)
     (reset! sente-socket (sente/make-channel-socket! "/chsk" {})))
-  (vr/init! @sente-socket {:use-default-sente-router? true}))
+  (sente/start-chsk-router! (:ch-recv @sente-socket) sente-event-msg-handler)
+  (vr/init! @sente-socket))

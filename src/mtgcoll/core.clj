@@ -20,7 +20,8 @@
     [mtgcoll.views.sente :as sente]
     [mtgcoll.routes.main-page :refer [main-page-routes]]
     [mtgcoll.routes.images :refer [image-routes]]
-    [mtgcoll.routes.collection :refer [collection-routes]]))
+    [mtgcoll.routes.collection :refer [collection-routes]]
+    [mtgcoll.routes.auth :refer [auth-routes]]))
 
 (defn init
   []
@@ -47,6 +48,7 @@
 
 (def handler
   (-> (routes
+        auth-routes
         collection-routes
         image-routes
         main-page-routes
