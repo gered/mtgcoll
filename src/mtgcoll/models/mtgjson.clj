@@ -4,7 +4,6 @@
     [clojure.java.io :as io]
     [clojure.java.jdbc :as sql]
     [cheshire.core :as json]
-    [pantomime.mime :refer [mime-type-of]]
     [mtgcoll.db :refer [db]])
   (:use
     mtgcoll.utils)
