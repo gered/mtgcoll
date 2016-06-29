@@ -48,12 +48,12 @@
 (defn download-gatherer-set-images!
   []
   (println "Downloading set images from Gatherer")
-  (doseq [code (get-gatherer-set-codes)]
-    (println "Getting images for set:" code)
+  (doseq [{:keys [code gatherer_code] :as set} (get-gatherer-set-codes)]
+    (println "Getting images for set:" code (if gatherer_code (str "(" gatherer_code ")") ""))
     (doseq [size sizes]
-      (if-let [image-bytes (download-set-image size code)]
-        (save-bytes-to-file! (str "/sets/" size "/" (:code code) ".png") image-bytes)
-        (println "Unable to download" size "image for:" code)))))
+      (if-let [image-bytes (download-set-image size set)]
+        (save-bytes-to-file! (str "/sets/" size "/" code ".png") image-bytes)
+        (println "Unable to download" size "image for:" set)))))
 
 ;;;;
 
