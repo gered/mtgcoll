@@ -7,7 +7,6 @@
     [immutant.web :as immutant]
     [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
     [ring.middleware.format :refer [wrap-restful-format]]
-    [ring.middleware.reload :refer [wrap-reload]]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
 
     [mtgcoll.cli :refer [parse-cli-args]]
@@ -45,12 +44,6 @@
 
   (log/info "Application stopped."))
 
-(defn wrap-env-middleware
-  [handler]
-  (if (config/get :dev?)
-    (-> handler (wrap-reload))
-    handler))
-
 (def handler
   (-> (routes
         collection-routes
@@ -58,7 +51,6 @@
         main-page-routes
         (route/resources "/")
         (route/not-found "not found"))
-      (wrap-env-middleware)
       (wrap-restful-format :formats [:json-kw])
       (sente/wrap-sente "/chsk")
       (wrap-defaults (assoc-in site-defaults [:security :anti-forgery] false))))
@@ -66,15 +58,22 @@
 (defn start-server!
   []
   (init)
-  (immutant/run
-    #'handler
-    (merge
-      {:port         8080
-       :host         "localhost"
-       :path         "/"
-       :virtual-host nil
-       :dispatch?    true}
-      (config/get :web))))
+  (let [options (merge
+                  {:port         8080
+                   :host         "localhost"
+                   :path         "/"
+                   :virtual-host nil
+                   :dispatch?    true}
+                  (config/get :web))]
+    (if (config/get :dev?)
+      ; why the fuck would anyone assume that if you are running in "development mode" you automatically
+      ; want a new browser window/tab to be opened each time the web server is started? AND not provide an
+      ; option to disable this annoying-as-fuck behaviour.
+      ; i mean, jesus christ, it's obviously _not_ possible that i might already have a browser open that i
+      ; might prefer to keep reusing ... !
+      (with-redefs [clojure.java.browse/browse-url (fn [_])]
+        (immutant/run-dmc #'handler options))
+      (immutant/run #'handler options))))
 
 (defn stop-server!
   []
