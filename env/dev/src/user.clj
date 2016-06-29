@@ -8,10 +8,12 @@
 
 (defn migrate [& args]
   (config/load! "config.edn")
+  (db/setup-config!)
   (println "Running migrations on" (:subname @db/db))
   (ragtime/migrate (db/get-ragtime-config)))
 
 (defn rollback [& args]
   (config/load! "config.edn")
+  (db/setup-config!)
   (println "Rolling back migrations on" (:subname @db/db))
   (ragtime/rollback (db/get-ragtime-config) (or (first args) 1)))
