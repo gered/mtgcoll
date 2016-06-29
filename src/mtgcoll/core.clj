@@ -9,7 +9,6 @@
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.reload :refer [wrap-reload]]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
-    [views.reagent.sente.server :as vr]
 
     [mtgcoll.cli :refer [parse-cli-args]]
     [mtgcoll.config :as config]
