@@ -2,6 +2,7 @@
   (:require
     [reagent.core :as r]
     [secretary.core :refer-macros [defroute]]
+    [webtools.cljs.ajax :as ajax]
     [webtools.cljs.utils :refer [hook-browser-navigation!]]
     [mtgcoll.client.views :as views]
     [mtgcoll.client.page :as page]
@@ -22,6 +23,7 @@
 (defn ^:export run
   []
   (enable-console-print!)
+  (ajax/add-csrf-header!)
   (views/init!)
   (hook-browser-navigation!))
 
