@@ -120,6 +120,7 @@
 (def search-filter-defs
   {:name             {:label "Name" :type :text :comparisons [:like :=]}
    :set-code         {:label "Set" :type :text :comparisons [:=] :component set-search-field-element}
+   :cmc              {:label "Converted Mana Cost" :type :numeric :comparisons [:= :> :<] :validation-fn valid-integer? :transform-fn js/parseInt}
    :colors           {:label "Colors" :type :checkbox :comparisons [:like :=] :choices ["Black" "Blue" "Green" "Red" "White"] :component checkboxes-search-field-element}
    :color-identity   {:label "Color Identity" :type :checkbox :comparisons [:like :=] :choices [["Black" "B"] ["Blue" "U"] ["Green" "G"] ["Red" "R"] ["White" "W"]] :component checkboxes-search-field-element}
    :type             {:label "Type" :type :text :comparisons [:like :=]}

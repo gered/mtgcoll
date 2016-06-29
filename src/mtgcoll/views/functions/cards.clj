@@ -140,6 +140,7 @@
 (def search-field-where-clauses
   {:name             (text-comparison-fn [:name :normalized_name])
    :set-code         (text-comparison-fn [:set_code] true)
+   :cmc              (numeric-comparison-fn [:converted_mana_cost])
    :colors           (fn [value comparison]
                        (let [colors (as-> value x
                                           (map string/trim x)
