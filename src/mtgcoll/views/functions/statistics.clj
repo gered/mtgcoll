@@ -2,17 +2,24 @@
 
 (defn owned-total
   [online?]
-  ["select sum(quantity)
+  ["select coalesce(sum(quantity), 0) as total
     from collection
     where online = ?"
    (boolean online?)])
 
 (defn distinct-owned-total
   [online?]
-  ["select count(*)
+  ["select count(distinct c.id)
     from cards c
     join collection cl on c.id = cl.card_id
     where cl.quantity > 0 and cl.online = ?"
+   (boolean online?)])
+
+(defn owned-foil-total
+  [online?]
+  ["select coalesce(sum(quantity), 0) as total
+    from collection
+    where online = ? and foil = true"
    (boolean online?)])
 
 (defn color-totals

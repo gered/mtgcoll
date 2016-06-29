@@ -37,7 +37,8 @@
    (view :card-pricing get-db #'prices/card-pricing)
    (view :pricing-sources get-db #'prices/pricing-sources)
 
-   (view :stats/owned-total get-db #'statistics/owned-total {:row-fn :sum :result-set-fn first})
+   (view :stats/owned-total get-db #'statistics/owned-total {:row-fn :total :result-set-fn first})
+   (view :stats/owned-foil-total get-db #'statistics/owned-foil-total {:row-fn :total :result-set-fn first})
    (view :stats/distinct-owned-total get-db #'statistics/distinct-owned-total {:row-fn :count :result-set-fn first})
    (view :stats/color-totals get-db #'statistics/color-totals {:result-set-fn first})
    (view :stats/basic-type-totals get-db #'statistics/basic-type-totals {:result-set-fn first})

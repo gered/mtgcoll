@@ -208,6 +208,7 @@
   [online? pricing-source & [{:keys [width] :as options}]]
   (let [agg-price-stats           (view-cursor :stats/agg-price-stats online? pricing-source)
         owned-total               (view-cursor :stats/owned-total online?)
+        owned-foil-total          (view-cursor :stats/owned-foil-total online?)
         distinct-owned-total      (view-cursor :stats/distinct-owned-total online?)
         total-sets-owned-from     (view-cursor :stats/total-sets-owned-from online?)
         total-sets-owned-all-from (view-cursor :stats/total-sets-owned-all-from online?)
@@ -223,7 +224,8 @@
      [widget-row [big-currency-statistic "Median Card Value" (:median_price @agg-price-stats)]]
      [widget-row [big-number-statistic "Cards Owned Over $1 Value" @num-worth-over-1-dollar]]
      [widget-row [big-number-statistic "Partial Sets" @total-sets-owned-from]]
-     [widget-row [big-number-statistic "Complete Sets" @total-sets-owned-all-from]]]))
+     [widget-row [big-number-statistic "Complete Sets" @total-sets-owned-all-from]]
+     [widget-row [big-number-statistic "Owned Foil Cards" @owned-foil-total]]]))
 
 
 (defonce settings (r/atom {:online?        false
