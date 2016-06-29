@@ -1,7 +1,9 @@
 (ns mtgcoll.cli
   (:require
     [clojure.string :as string]
-    [clojure.tools.cli :as cli]))
+    [clojure.tools.cli :as cli])
+  (:use
+    mtgcoll.utils))
 
 (def ^:private cli-options
   [["-c" "--config EDN-CONFIG-FILE"
@@ -18,7 +20,7 @@
 (defn- ->actions-summary
   []
   (->> actions
-       (map (fn [[action desc]] (str "  " action "\t\t" desc)))
+       (map (fn [[action desc]] (str "  " (pad-string 20 action) " " desc)))
        (string/join \newline)))
 
 (defn- ->usage-string

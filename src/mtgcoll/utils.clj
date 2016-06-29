@@ -50,3 +50,10 @@
         body     (:body response)]
     (if-not (empty? body)
       body)))
+
+(defn pad-string
+  [n s & [c]]
+  (let [c (or c \space)]
+    (if (< (count s) n)
+      (->> (repeat c) (concat s) (take n) (string/join))
+      s)))
