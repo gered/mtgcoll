@@ -81,11 +81,13 @@
 
 (defn download-gatherer-symbol-images!
   []
+  ;; note: intentionally using "symbols" as type arg to download-gatherer-symbol-image!
+  ;;       as it's just simpler to have both sets of images saved into the same "symbols" directory
   (println "Downloading mana symbol images from Gatherer")
   (doseq [symbol-name mana-symbols]
     (println "Getting images for mana symbol:" symbol-name)
     (doseq [size sizes]
-      (if-not (download-gatherer-symbol-image! size "mana" symbol-name)
+      (if-not (download-gatherer-symbol-image! size "symbols" symbol-name)
         (println "Unable to download" size "image for mana symbol:" symbol-name))))
   ; other symbols
   (doseq [symbol-name other-symbols]
