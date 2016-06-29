@@ -31,6 +31,7 @@
                  [cheshire "5.6.1"]
                  [com.novemberain/pantomime "2.8.0"]
                  [cljsjs/chartjs "2.0.1-0"]
+                 [luminus/ring-ttl-session "0.3.1"]
 
                  [gered/config "0.1"]]
 
