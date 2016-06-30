@@ -10,7 +10,7 @@
            s.block,
            s.online_only,
            (
-               select count(c.*)
+               select count(*)
                from cards c
                where c.set_code = s.code
            ) as card_count,
@@ -39,7 +39,7 @@
            s.block,
            s.online_only,
            (
-               select count(c.*)
+               select count(*)
                from cards c
                where c.set_code = s.code
            ) as card_count,
