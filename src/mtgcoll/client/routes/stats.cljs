@@ -30,14 +30,18 @@
 
 (defn- render-vertical-chart-legend
   [chart]
-  (let [data    (-> chart .-data)
-        labels  (-> data .-labels)
-        dataset (-> data .-datasets (aget 0))]
+  ;; HACK: usage of aget where '.-' notation *SHOULD* have worked
+  ;;       (in practice, it was only not working for 'datasets' in production builds
+  ;;       even though the js object clearly DID have this field).
+  ;;       just changing them all to aget for consistency
+  (let [data    (-> chart (aget "data"))
+        labels  (-> data (aget "labels"))
+        dataset (-> data (aget "datasets") first)]
     (r/render-to-string
-      [:ul {:id (.-id chart)}
+      [:ul {:id (aget chart "id")}
        (map-indexed
          (fn [idx label]
-           (let [bg-color (-> dataset .-backgroundColor (aget idx))]
+           (let [bg-color (-> dataset (aget "backgroundColor") (aget idx))]
              ^{:key idx}
              [:li [:span {:style {:background-color bg-color}}]
               label]))
