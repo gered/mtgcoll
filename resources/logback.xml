@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_FILE:-web.log}</File>
+		<encoder>
+			<pattern>%d{ISO8601} %-5p [%c] - %m%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>5</maxIndex>
+			<FileNamePattern>${LOG_FILE:-web.log}.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>5MB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<appender name="C" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{ISO8601} %-5p [%c] - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- these are just to remove some "chatty" logging output, especially for DEBUG and lower -->
+	<logger name="org.eclipse.jetty" level="INFO"/>
+	<logger name="org.xnio" level="INFO"/>
+	<logger name="io.undertow" level="INFO"/>
+
+	<root level="${ROOT_LEVEL:-INFO}">
+		<appender-ref ref="R"/>
+		<appender-ref ref="C"/>
+	</root>
+</configuration>
