@@ -1,6 +1,9 @@
 (defproject mtgcoll "0.1.0-SNAPSHOT"
-  :description  "FIXME: write description"
-  :url          "http://example.com/FIXME"
+  :description  "Magic: The Gathering card database and personal collection management web app."
+  :url          "https://github.com/gered/mtgcoll"
+  :license      {:name "MIT License"
+                 :url  "http://opensource.org/licenses/MIT"}
+
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
                  [ring "1.4.0"]
@@ -54,8 +57,6 @@
                                            :source-map    true
                                            :optimizations :none
                                            :pretty-print  true}}}}
-
-  ;:figwheel      {:nrepl-port 7880}
 
   :profiles      {:dev     {:source-paths   ["env/dev/src"]
                             :resource-paths ["env/dev/resources"]
