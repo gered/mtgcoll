@@ -9,7 +9,8 @@
 (defn validate-credentials
   [username password]
   (if (using-authorization?)
-    (->> (config/get :users)
-         (filter #(and (= username (:username %))
-                       (= password (:password %))))
-         (first))))
+    (as-> (config/get :users) x
+          (filter #(and (= username (:username %))
+                        (= password (:password %))) x)
+          (first x)
+          (dissoc x :password))))
