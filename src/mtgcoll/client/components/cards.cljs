@@ -55,7 +55,7 @@
     (fn [filters pager]
       (let [cards      (view-cursor :cards filters (:sort-by @sort-settings) (:ascending? @sort-settings) (:page @pager) (:page-size @pager))
             card-count (view-cursor :count-of-cards filters)
-            num-pages  (min (js/Math.round (/ @card-count (:page-size @pager)))
+            num-pages  (min (js/Math.ceil (/ @card-count (:page-size @pager)))
                             (max-pages @pager))]
         (if (vc/loading? cards)
           [:div "Loading ..."]
