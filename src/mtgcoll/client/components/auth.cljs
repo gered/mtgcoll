@@ -27,7 +27,10 @@
                                    :on-error #(reset! error "Invalid username/password.")
                                    :on-success (fn [_]
                                                  (on-close)
-                                                 (views/reconnect!))))))]
+                                                 (views/reconnect!))))))
+        on-key-up (fn [e]
+                    (if (= 13 (.-keyCode e))
+                      (on-submit)))]
     (fn []
       [bs/Modal
        {:show    (boolean @auth/show-login)
@@ -43,14 +46,16 @@
            [bs/FormControl
             {:type      "text"
              :value     (or (:username @values) "")
-             :on-change #(swap! values assoc :username (get-field-value %))}]]]
+             :on-change #(swap! values assoc :username (get-field-value %))
+             :on-key-up on-key-up}]]]
          [bs/FormGroup
           [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Password"]]
           [bs/Col {:sm 6}
            [bs/FormControl
             {:type      "password"
              :value     (or (:password @values) "")
-             :on-change #(swap! values assoc :password (get-field-value %))}]]]]]
+             :on-change #(swap! values assoc :password (get-field-value %))
+             :on-key-up on-key-up}]]]]]
        [bs/Modal.Footer
         [bs/Button {:bsStyle "primary" :on-click on-submit} "Login"]
         [bs/Button {:on-click on-close} "Cancel"]]])))
