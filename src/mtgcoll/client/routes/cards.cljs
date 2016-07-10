@@ -9,7 +9,7 @@
     [mtgcoll.client.components.cards :refer [card-image card-link]]
     [mtgcoll.client.components.utils :refer [symbol-image set-heading set-label symboled-markup]]
     [mtgcoll.client.components.inventory :refer [inventory]]
-    [mtgcoll.client.utils :refer [format-date format-datetime]]))
+    [mtgcoll.client.utils :refer [format-date format-datetime format-currency]]))
 
 (defn detail
   [& components]
@@ -178,8 +178,8 @@
                          ^{:key idx}
                          [:tr
                           [:td source]
-                          [:td paper-price]
-                          [:td online-price]
+                          [:td (format-currency paper-price true)]
+                          [:td (format-currency online-price true)]
                           [:td (format-datetime last-updated)]]))))]]])
          (if (and (seq @printings)
                   (> (count @printings) 1))

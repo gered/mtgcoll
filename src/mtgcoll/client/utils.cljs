@@ -60,6 +60,6 @@
     (string/replace (str n) #"\B(?=(\d{3})+(?!\d))" ",")))
 
 (defn format-currency
-  [n]
+  [n & [number-only?]]
   (if n
-    (str "$" (pprint/cl-format nil "~,2f" n))))
+    (str (if-not number-only? "$") (pprint/cl-format nil "~,2f" n))))

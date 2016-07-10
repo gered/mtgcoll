@@ -7,7 +7,8 @@
     [webtools.reagent.components :refer [raw-html]]
     [mtgcoll.common :refer [max-search-results]]
     [mtgcoll.client.components.utils :refer [set-short-label symboled-markup th-sortable]]
-    [mtgcoll.client.components.inventory :refer [inventory]]))
+    [mtgcoll.client.components.inventory :refer [inventory]]
+    [mtgcoll.client.utils :refer [format-currency]]))
 
 (defn card-image
   [card-id & {:keys [width height]}]
@@ -86,8 +87,8 @@
                                 (if (or power toughness)
                                   (str " (" power "/" toughness ")")))]
                       [:td rarity]
-                      [:td paper_price]
-                      [:td online_price]
+                      [:td (format-currency paper_price true)]
+                      [:td (format-currency online_price true)]
                       [:td [inventory id
                             {:num-owned owned_count
                              :button-size "xsmall"
