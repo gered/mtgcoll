@@ -212,7 +212,7 @@
                       :from   [[:cards :c]]
                       :join   [[:sets :s] [:= :c.set_code :s.code]]}
                      (if order-by
-                       {:order-by [order-by]}))
+                       {:order-by [order-by [:c.id]]}))
                    :cards_list]]}]
     (if (seq hsql-filters)
       (assoc q :where (concat [:and] hsql-filters))
