@@ -24,53 +24,59 @@
     where c.id = ?" id])
 
 (defn full-card-info
-  [id]
-  ["select c.id,
-           c.set_code,
-           c.layout,
-           c.name as card_name,
-           c.mana_cost,
-           c.converted_mana_cost,
-           c.colors,
-           c.color_identity,
-           c.type,
-           c.supertypes,
-           c.types,
-           c.subtypes,
-           c.rarity,
-           c.text,
-           c.flavor,
-           c.artist,
-           c.number,
-           c.power,
-           c.toughness,
-           c.loyalty,
-           c.multiverseid,
-           c.image_name,
-           c.watermark,
-           c.border,
-           s.border as set_border,
-           c.timeshifted,
-           c.hand,
-           c.life,
-           c.reserved,
-           c.release_date,
-           c.starter,
-           s.name as set_name,
-           s.gatherer_code,
-           s.old_code,
-           s.magic_cards_info_code,
-           s.release_date as set_release_date,
-           s.type as set_type,
-           s.block,
-           s.online_only,
-           c.paper_price,
-           c.online_price,
-           c.owned_count,
-           c.owned_foil_count
-    from cards c
-    join sets s on c.set_code = s.code
-    where c.id = ?" id])
+  [id list-id user-id]
+  (let [list-id      (int list-id)
+        public-only? (nil? user-id)]
+    ["select c.id,
+             c.set_code,
+             c.layout,
+             c.name as card_name,
+             c.mana_cost,
+             c.converted_mana_cost,
+             c.colors,
+             c.color_identity,
+             c.type,
+             c.supertypes,
+             c.types,
+             c.subtypes,
+             c.rarity,
+             c.text,
+             c.flavor,
+             c.artist,
+             c.number,
+             c.power,
+             c.toughness,
+             c.loyalty,
+             c.multiverseid,
+             c.image_name,
+             c.watermark,
+             c.border,
+             s.border as set_border,
+             c.timeshifted,
+             c.hand,
+             c.life,
+             c.reserved,
+             c.release_date,
+             c.starter,
+             s.name as set_name,
+             s.gatherer_code,
+             s.old_code,
+             s.magic_cards_info_code,
+             s.release_date as set_release_date,
+             s.type as set_type,
+             s.block,
+             s.online_only,
+             c.paper_price,
+             c.online_price,
+             lc.quantity,
+             lc.foil_quantity
+      from cards c
+      join sets s on c.set_code = s.code
+      join lists l on l.id = ?
+      left join lists_card_quantities lc on (lc.card_id = c.id and lc.list_id = l.id)
+      where c.id = ?
+            and l.is_public in (true, ?)"
+     list-id id public-only?]))
 
 (defn card-names
   [id]
@@ -164,20 +170,24 @@
    :number           (text-comparison-fn [:number] true)
    :power            (text-comparison-fn [:power] true)
    :toughness        (text-comparison-fn [:toughness] true)
-   :owned-count      (numeric-comparison-fn [:owned_count])
-   :owned-foil-count (numeric-comparison-fn [:owned_foil_count])
+   :owned-count      (numeric-comparison-fn [:quantity])
+   :owned-foil-count (numeric-comparison-fn [:foil_quantity])
    :paper-price      (numeric-comparison-fn [:paper_price])
    :online-price     (numeric-comparison-fn [:online_price])
    :owned?           (fn [value comparison]
                        (assert (= := comparison))
                        (case value
-                         true [:> :owned_count 0]
-                         false [:= :owned_count 0]))
+                         true [:> :quantity 0]
+                         false [:or
+                                [:is :quantity nil]
+                                [:= :quantity 0]]))
    :owned-foil?      (fn [value comparison]
                        (assert (= := comparison))
                        (case value
-                         true [:> :owned_foil_count 0]
-                         false [:= :owned_foil_count 0]))})
+                         true [:> :foil_quantity 0]
+                         false [:or
+                                [:is :foil_quantity nil]
+                                [:= :foil_quantity 0]]))})
 
 (defn- filter->hsql-where-criteria
   [{:keys [field value comparison]}]
@@ -185,32 +195,38 @@
     (f value comparison)))
 
 (defn- base-card-search-query
-  [hsql-filters & [order-by]]
+  [list-id public-only? hsql-filters & [order-by]]
   (let [q {:from [[(merge
-                     {:select [:c.id
-                               :c.name
-                               :c.normalized_name
-                               :c.set_code
-                               [:s.name :set_name]
-                               :c.mana_cost
-                               :c.converted_mana_cost
-                               :c.colors
-                               :c.color_identity
-                               :c.type
-                               :c.rarity
-                               :c.text
-                               :c.flavor
-                               :c.artist
-                               :c.number
-                               :c.power
-                               :c.toughness
-                               :c.loyalty
-                               :c.paper_price
-                               :c.online_price
-                               :c.owned_count
-                               :c.owned_foil_count]
-                      :from   [[:cards :c]]
-                      :join   [[:sets :s] [:= :c.set_code :s.code]]}
+                     {:select    [:c.id
+                                  :c.name
+                                  :c.normalized_name
+                                  :c.set_code
+                                  [:s.name :set_name]
+                                  :c.mana_cost
+                                  :c.converted_mana_cost
+                                  :c.colors
+                                  :c.color_identity
+                                  :c.type
+                                  :c.rarity
+                                  :c.text
+                                  :c.flavor
+                                  :c.artist
+                                  :c.number
+                                  :c.power
+                                  :c.toughness
+                                  :c.loyalty
+                                  :c.paper_price
+                                  :c.online_price
+                                  :lc.quantity
+                                  :lc.foil_quantity]
+                      :from      [[:cards :c]]
+                      :join      [[:sets :s] [:= :c.set_code :s.code]
+                                  [:lists :l] [:and
+                                               [:= :l.id list-id]
+                                               [:in :l.is_public [true public-only?]]]]
+                      :left-join [[:lists_card_quantities :lc] [:and
+                                                                [:= :c.id :lc.card_id]
+                                                                [:= :lc.list_id list-id]]]}
                      (if order-by
                        {:order-by [order-by [:c.id]]}))
                    :cards_list]]}]
@@ -219,8 +235,9 @@
       q)))
 
 (defn cards
-  [filters & [sort-by ascending? page-num page-size]]
-  (let [sort-by      (case sort-by
+  [list-id user-id filters & [sort-by ascending? page-num page-size]]
+  (let [public-only? (nil? user-id)
+        sort-by      (case sort-by
                        :name :name
                        :set :set_code
                        :mana-cost :converted_mana_cost
@@ -228,10 +245,10 @@
                        :rarity :rarity
                        :paper-price :paper_price
                        :online-price :online_price
-                       :inventory :owned_count
+                       :inventory :quantity
                        :name)
         sort-dir     (if ascending? :asc :desc)
-        nulls        (if (some #{sort-by} #{:converted_mana_cost :paper_price :online_price :owned_count})
+        nulls        (if (some #{sort-by} #{:converted_mana_cost :paper_price :online_price :quantity})
                        (if-not ascending? :nulls-last :nulls-first))
         page-size    (or page-size 25)
         page-size    (if (> page-size 200) 200 page-size)
@@ -241,6 +258,8 @@
                        page-num)
         hsql-filters (mapv filter->hsql-where-criteria filters)
         q            (base-card-search-query
+                       list-id
+                       public-only?
                        hsql-filters
                        (if nulls
                          [sort-by sort-dir nulls]
@@ -251,10 +270,11 @@
     (hsql/format q)))
 
 (defn count-of-cards
-  [filters]
-  (let [hsql-filters (mapv filter->hsql-where-criteria filters)
-        q            (base-card-search-query hsql-filters)
+  [list-id user-id filters]
+  (let [public-only? (nil? user-id)
+        hsql-filters (mapv filter->hsql-where-criteria filters)
+        q            (base-card-search-query list-id public-only? hsql-filters)
         q            (assoc q :select [:%count.*])]
     (hsql/format q)))
 
-#_(cards [{:field :name :value "z" :comparison :like}] :name true 10000 20)
+#_(cards 0 nil [{:field :name :value "z" :comparison :like}] :name true 10000 20)

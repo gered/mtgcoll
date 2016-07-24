@@ -18,7 +18,7 @@
                select count(*)
                from collection cl
                join cards c on cl.card_id = c.id
-               where c.set_code = s.code and cl.quantity > 0
+               where c.set_code = s.code and cl.quantity > 0 and cl.list_id = 0
            ) as owned_count
     from sets s
     where s.code = ?" code])
@@ -47,6 +47,6 @@
                select count(*)
                from collection cl
                join cards c on cl.card_id = c.id
-               where c.set_code = s.code and cl.quantity > 0
+               where c.set_code = s.code and cl.quantity > 0 and cl.list_id = 0
            ) as owned_count
     from sets s"])

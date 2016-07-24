@@ -16,13 +16,14 @@
 (defn all-cards-list
   []
   (let [active-search-filters (r/cursor all-cards-search-filters [:active-filters])
-        pager                 (r/cursor all-cards-search-filters [:pager])]
+        pager                 (r/cursor all-cards-search-filters [:pager])
+        list-id               0]
     (fn []
       (set-active-breadcrumb! :all)
       [:div
        [bs/PageHeader "All Cards"]
        [s/search-filter-selector all-cards-search-filters]
-       [card-list-table @active-search-filters pager]])))
+       [card-list-table list-id @active-search-filters pager]])))
 
 ;;;
 
@@ -33,11 +34,12 @@
   []
   (let [fixed-filters         [{:field :owned? :value true :comparison :=}]
         active-search-filters (r/cursor owned-cards-search-filters [:active-filters])
-        pager                 (r/cursor owned-cards-search-filters [:pager])]
+        pager                 (r/cursor owned-cards-search-filters [:pager])
+        list-id               0]
     (s/apply-search-filters! owned-cards-search-filters fixed-filters)
     (fn []
       (set-active-breadcrumb! :owned)
       [:div
        [bs/PageHeader "Owned Cards"]
        [s/search-filter-selector owned-cards-search-filters {:fixed-active-filters fixed-filters}]
-       [card-list-table @active-search-filters pager {:no-owned-highlight? true}]])))
+       [card-list-table list-id @active-search-filters pager {:no-owned-highlight? true}]])))

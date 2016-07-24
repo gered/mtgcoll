@@ -61,12 +61,13 @@
   [set-code]
   (let [fixed-filters         [{:field :set-code :value set-code :comparison :=}]
         active-search-filters (r/cursor set-cards-search-filters [:active-filters])
-        pager                 (r/cursor set-cards-search-filters [:pager])]
+        pager                 (r/cursor set-cards-search-filters [:pager])
+        list-id               0]
     (s/apply-search-filters! set-cards-search-filters fixed-filters)
     (fn []
       [:div.set-cards-list
        [s/search-filter-selector set-cards-search-filters {:fixed-active-filters fixed-filters}]
-       [card-list-table @active-search-filters pager]])))
+       [card-list-table list-id @active-search-filters pager]])))
 
 (defvc set-details
   [set-code]

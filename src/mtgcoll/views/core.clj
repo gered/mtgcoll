@@ -1,10 +1,12 @@
 (ns mtgcoll.views.core
   (:require
+    [clojure.tools.logging :as log]
     [views.reagent.sente.server :as vr]
     [views.core :as views]
     [views.sql.view :refer [view]]
     [honeysql.format :as fmt]
     [mtgcoll.db :refer [db]]
+    [mtgcoll.auth :as auth]
     [mtgcoll.views.sente :refer [sente-socket]]
     [mtgcoll.views.functions.cards :as cards]
     [mtgcoll.views.functions.sets :as sets]
@@ -56,11 +58,42 @@
 
 #_(views/add-views! view-system views)
 
+(defn view-auth-fn
+  [{:keys [view-id parameters] :as view-sig} subscriber-key context]
+  (let [request  context
+        username (get-in request [:session :user :username])]
+    (if-not (auth/using-authorization?)
+      true
+
+      (case view-id
+        ; views where the user-id parameter is always last
+        (:stats/owned-total :stats/owned-foil-total :stats/distinct-owned-total :stats/color-totals
+         :stats/basic-type-totals :stats/most-common-types :stats/total-sets-owned-from
+         :stats/total-sets-owned-all-from :stats/most-owned-sets :stats/most-copies-of-card
+         :stats/most-nonland-copies-of-card :stats/total-price :stats/agg-price-stats :stats/most-valuable-cards
+         :stats/num-cards-worth-over-1-dollar :stats/card-rarity-totals :full-card-info)
+        (= username (last parameters))
+
+        ; views where the user-id parameter is second
+        (:cards :count-of-cards)
+        (= username (second parameters))
+
+        ; assume otherwise that the view is not one that requires an auth check (no user-id parameter)
+        true))))
+
+(defn view-on-unauth-fn
+  [{:keys [view-id parameters] :as view-sig} subscriber-key context]
+  (let [request      context
+        user-profile (get-in request [:session :user])]
+    (log/warn "Unauthorized view subscription attempt: " view-id ", " parameters " - user profile: " user-profile)))
+
 (defn init!
   []
   (vr/init! view-system @sente-socket
             {:views                     views
-             :use-default-sente-router? true}))
+             :use-default-sente-router? true
+             :auth-fn                   view-auth-fn
+             :on-unauth-fn              view-on-unauth-fn}))
 
 (defn shutdown!
   []

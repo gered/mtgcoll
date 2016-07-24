@@ -6,6 +6,7 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :refer [->keyed-comps]]
     [webtools.cljs.utils :refer [->url]]
+    [mtgcoll.client.auth :as auth]
     [mtgcoll.client.page :refer [set-active-breadcrumb!]]
     [mtgcoll.client.utils :refer [format-number format-currency get-field-value]]
     [mtgcoll.client.components.utils :refer [set-short-label]]
@@ -84,8 +85,8 @@
                :backgroundColor (vec bg-colors)}]})
 
 (defvc widget-color-totals
-  [online? & [{:keys [width] :as options}]]
-  (let [color-totals (view-cursor :stats/color-totals online?)]
+  [online? list-id & [{:keys [width] :as options}]]
+  (let [color-totals (view-cursor :stats/color-totals online? list-id (auth/get-username))]
     (if-not (vc/loading? color-totals)
       [bs/Col {:sm (or width 12) :class "widget"}
        [:div.title "Card Colors"]
@@ -97,8 +98,8 @@
         {:vertical-legend? true}]])))
 
 (defvc widget-basic-type-totals
-  [online? & [{:keys [width] :as options}]]
-  (let [basic-type-totals (view-cursor :stats/basic-type-totals online?)]
+  [online? list-id & [{:keys [width] :as options}]]
+  (let [basic-type-totals (view-cursor :stats/basic-type-totals online? list-id (auth/get-username))]
     (if-not (vc/loading? basic-type-totals)
       [bs/Col {:sm (or width 12) :class "widget"}
        [:div.title "Basic Card Types"]
@@ -133,8 +134,8 @@
          data)]]]))
 
 (defvc widget-most-owned-sets
-  [online? & [options]]
-  (let [data (view-cursor :stats/most-owned-sets online?)]
+  [online? list-id & [options]]
+  (let [data (view-cursor :stats/most-owned-sets online? list-id (auth/get-username))]
     (if-not (vc/loading? data)
       [table-statistics
        "Cards Owned By Set"
@@ -145,8 +146,8 @@
        options])))
 
 (defvc widget-most-copies-of-card
-  [online? & [options]]
-  (let [data (view-cursor :stats/most-copies-of-card online?)]
+  [online? list-id & [options]]
+  (let [data (view-cursor :stats/most-copies-of-card online? list-id (auth/get-username))]
     (if-not (vc/loading? data)
       [table-statistics
        "Most Copies Owned"
@@ -158,8 +159,8 @@
        options])))
 
 (defvc widget-most-nonland-copies-of-card
-  [online? & [options]]
-  (let [data (view-cursor :stats/most-nonland-copies-of-card online?)]
+  [online? list-id & [options]]
+  (let [data (view-cursor :stats/most-nonland-copies-of-card online? list-id (auth/get-username))]
     (if-not (vc/loading? data)
       [table-statistics
        "Most Non-land Copies Owned"
@@ -171,8 +172,8 @@
        options])))
 
 (defvc widget-most-valuable-cards
-  [online? pricing-source & [options]]
-  (let [data (view-cursor :stats/most-valuable-cards online? pricing-source)]
+  [online? list-id pricing-source & [options]]
+  (let [data (view-cursor :stats/most-valuable-cards online? pricing-source list-id (auth/get-username))]
     (if-not (vc/loading? data)
       [table-statistics
        "Most Valuable Cards"
@@ -184,8 +185,8 @@
        options])))
 
 (defvc widget-rarity-totals
-  [online? & [options]]
-  (let [data (view-cursor :stats/card-rarity-totals online?)]
+  [online? list-id & [options]]
+  (let [data (view-cursor :stats/card-rarity-totals online? list-id (auth/get-username))]
     (if-not (vc/loading? data)
       [table-statistics
        "Cards Owned By Rarity"
@@ -195,8 +196,8 @@
        options])))
 
 (defvc widget-agg-price-stats
-  [online? pricing-source & [{:keys [width] :as options}]]
-  (let [agg-price-stats (view-cursor :stats/agg-price-stats online? pricing-source)
+  [online? list-id pricing-source & [{:keys [width] :as options}]]
+  (let [agg-price-stats (view-cursor :stats/agg-price-stats online? pricing-source list-id (auth/get-username))
         min-price       (:min_price @agg-price-stats)
         max-price       (:max_price @agg-price-stats)
         avg-price       (:avg_price @agg-price-stats)
@@ -209,15 +210,16 @@
        [big-currency-statistic "Median Card Value" median-price]])))
 
 (defvc widget-summary-stats
-  [online? pricing-source & [{:keys [width] :as options}]]
-  (let [agg-price-stats           (view-cursor :stats/agg-price-stats online? pricing-source)
-        owned-total               (view-cursor :stats/owned-total online?)
-        owned-foil-total          (view-cursor :stats/owned-foil-total online?)
-        distinct-owned-total      (view-cursor :stats/distinct-owned-total online?)
-        total-sets-owned-from     (view-cursor :stats/total-sets-owned-from online?)
-        total-sets-owned-all-from (view-cursor :stats/total-sets-owned-all-from online?)
-        total-price               (view-cursor :stats/total-price online? pricing-source)
-        num-worth-over-1-dollar   (view-cursor :stats/num-cards-worth-over-1-dollar online? pricing-source)]
+  [online? list-id pricing-source & [{:keys [width] :as options}]]
+  (let [username                  (auth/get-username)
+        agg-price-stats           (view-cursor :stats/agg-price-stats online? pricing-source list-id username)
+        owned-total               (view-cursor :stats/owned-total online? list-id username)
+        owned-foil-total          (view-cursor :stats/owned-foil-total online? list-id username)
+        distinct-owned-total      (view-cursor :stats/distinct-owned-total online? list-id username)
+        total-sets-owned-from     (view-cursor :stats/total-sets-owned-from online? list-id username)
+        total-sets-owned-all-from (view-cursor :stats/total-sets-owned-all-from online? list-id username)
+        total-price               (view-cursor :stats/total-price online? pricing-source list-id username)
+        num-worth-over-1-dollar   (view-cursor :stats/num-cards-worth-over-1-dollar online? pricing-source list-id username)]
     [bs/Col {:sm (or width 12) :class "widget"}
      [widget-row [big-number-statistic "Owned" @owned-total]]
      [widget-row [big-number-statistic "Unique" @distinct-owned-total]]
@@ -239,7 +241,8 @@
   []
   (let [pricing-sources (view-cursor :pricing-sources)
         online?         (:online? @settings)
-        pricing-source  (:pricing-source @settings)]
+        pricing-source  (:pricing-source @settings)
+        list-id         0]
     (set-active-breadcrumb! :stats)
     (if (and (not (vc/loading? pricing-sources))
              (nil? (:pricing-source @settings)))
@@ -268,12 +271,12 @@
      [bs/Grid {:fluid true :class "statistics"}
       [widget-row
        [bs/Col {:sm 4}
-        [widget-row [widget-summary-stats online? pricing-source]]
-        [widget-row [widget-rarity-totals online?]]
-        [widget-row [widget-most-owned-sets online?]]]
+        [widget-row [widget-summary-stats online? list-id pricing-source]]
+        [widget-row [widget-rarity-totals online? list-id]]
+        [widget-row [widget-most-owned-sets online? list-id]]]
        [bs/Col {:sm 8}
-        [widget-row [widget-color-totals online?]]
-        [widget-row [widget-basic-type-totals online?]]
-        [widget-row [widget-most-valuable-cards online? pricing-source {:width 10}]]
-        [widget-row [widget-most-copies-of-card online? {:width 10}]]
-        [widget-row [widget-most-nonland-copies-of-card online? {:width 10}]]]]]]))
+        [widget-row [widget-color-totals online? list-id]]
+        [widget-row [widget-basic-type-totals online? list-id]]
+        [widget-row [widget-most-valuable-cards online? list-id pricing-source {:width 10}]]
+        [widget-row [widget-most-copies-of-card online? list-id {:width 10}]]
+        [widget-row [widget-most-nonland-copies-of-card online? list-id {:width 10}]]]]]]))

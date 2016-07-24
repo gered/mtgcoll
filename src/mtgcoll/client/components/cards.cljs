@@ -6,6 +6,7 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :refer [raw-html]]
     [mtgcoll.common :refer [max-search-results]]
+    [mtgcoll.client.auth :as auth]
     [mtgcoll.client.components.utils :refer [set-short-label symboled-markup th-sortable]]
     [mtgcoll.client.components.inventory :refer [inventory]]
     [mtgcoll.client.utils :refer [format-currency]]))
@@ -49,13 +50,13 @@
   (> num-results max-search-results))
 
 (defvc card-list-table
-  [filters pager & [{:keys [no-owned-highlight?] :as options}]]
+  [list-id filters pager & [{:keys [no-owned-highlight?] :as options}]]
   (let [sort-settings (r/atom
                         {:sort-by    :name
                          :ascending? true})]
-    (fn [filters pager]
-      (let [cards      (view-cursor :cards filters (:sort-by @sort-settings) (:ascending? @sort-settings) (:page @pager) (:page-size @pager))
-            card-count (view-cursor :count-of-cards filters)
+    (fn [list-id filters pager]
+      (let [cards      (view-cursor :cards list-id (auth/get-username) filters (:sort-by @sort-settings) (:ascending? @sort-settings) (:page @pager) (:page-size @pager))
+            card-count (view-cursor :count-of-cards list-id (auth/get-username) filters)
             num-pages  (min (js/Math.ceil (/ @card-count (:page-size @pager)))
                             (max-pages @pager))]
         (if (vc/loading? cards)
@@ -76,8 +77,9 @@
                 [th-sortable sort-settings :inventory "Inventory"]]]
               [:tbody
                (map
-                 (fn [{:keys [id name set_code set_name mana_cost type power toughness rarity paper_price online_price owned_count] :as card}]
-                   (let [owned? (> owned_count 0)]
+                 (fn [{:keys [id name set_code set_name mana_cost type power toughness rarity paper_price online_price quantity] :as card}]
+                   (let [quantity (or quantity 0)
+                         owned?   (> quantity 0)]
                      ^{:key id}
                      [:tr {:class (if (and (not no-owned-highlight?) owned?) "warning")}
                       [:td [card-link id name :block-element? true]]
@@ -89,8 +91,8 @@
                       [:td rarity]
                       [:td (format-currency paper_price true)]
                       [:td (format-currency online_price true)]
-                      [:td [inventory id
-                            {:num-owned owned_count
+                      [:td [inventory id list-id
+                            {:num-owned quantity
                              :button-size "xsmall"
                              :button-style (if owned? "primary")}]]]))
                  @cards)]]

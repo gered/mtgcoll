@@ -6,6 +6,7 @@
     [webtools.cljs.utils :refer [->url pprint-json]]
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :refer [->keyed-comps raw-html]]
+    [mtgcoll.client.auth :as auth]
     [mtgcoll.client.components.cards :refer [card-image card-link]]
     [mtgcoll.client.components.utils :refer [symbol-image set-heading set-label symboled-markup]]
     [mtgcoll.client.components.inventory :refer [inventory]]
@@ -27,8 +28,8 @@
    (->keyed-comps components)])
 
 (defvc card-details
-  [id]
-  (let [card       (view-cursor :full-card-info id)
+  [id list-id]
+  (let [card       (view-cursor :full-card-info id list-id (auth/get-username))
         variations (view-cursor :card-variations id)
         pricing    (view-cursor :card-pricing id)
         printings  (view-cursor :card-printings (:card_name @card))]
@@ -48,10 +49,11 @@
         [:a {:href (->url "#/set/" (:set_code @card))}
          [:small [set-heading (:set_code @card) (:set_name @card)]]]
         [:div.pull-right
-         [inventory id
-          {:num-owned (:owned_count @card)
-           :button-size "large"
-           :button-style (if (> (:owned_count @card) 0) "primary")}]]]
+         (let [quantity (or (:quantity @card) 0)]
+           [inventory id list-id
+            {:num-owned quantity
+             :button-size "large"
+             :button-style (if (> quantity 0) "primary")}])]]
        [bs/Grid
         {:class "card" :fluid true}
         [bs/Col {:sm 6 :class "card-image"}

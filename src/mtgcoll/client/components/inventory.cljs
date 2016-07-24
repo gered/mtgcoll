@@ -13,15 +13,15 @@
   ["online" "near mint" "lightly played" "moderately played" "heavily played" "damaged"])
 
 (defn on-add-card
-  [card-id quality foil?]
+  [card-id quality foil? list-id]
   (ajax/POST (->url "/collection/add")
-             :params {:card-id card-id :quality quality :foil foil?}
+             :params {:card-id card-id :quality quality :foil foil? :list-id list-id}
              :on-error #(set-error! "Server error while adding card to inventory.")))
 
 (defn on-remove-card
-  [card-id quality foil?]
+  [card-id quality foil? list-id]
   (ajax/POST (->url "/collection/remove")
-             :params {:card-id card-id :quality quality :foil foil?}
+             :params {:card-id card-id :quality quality :foil foil? :list-id list-id}
              :on-error #(set-error! "Server error while adding card to inventory.")))
 
 (defn can-modify-inventory?
@@ -30,7 +30,7 @@
       (auth/authenticated?)))
 
 (defvc inventory-management
-  [card-id]
+  [card-id list-id]
   (let [inventory      (view-cursor :owned-card card-id)
         inventory      (group-by :quality @inventory)
         colspan        (if (can-modify-inventory?) 2 1)
@@ -72,10 +72,10 @@
                   [:td.col-sm-3
                    [bs/ButtonGroup {:justified true}
                     [bs/ButtonGroup
-                     [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality false)}
+                     [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality false list-id)}
                       [bs/Glyphicon {:glyph "plus"}]]]
                     [bs/ButtonGroup
-                     [bs/Button {:bsStyle "danger" :disabled (= 0 non-foil-quantity) :on-click #(on-remove-card card-id quality false)}
+                     [bs/Button {:bsStyle "danger" :disabled (= 0 non-foil-quantity) :on-click #(on-remove-card card-id quality false list-id)}
                       [bs/Glyphicon {:glyph "minus"}]]]]])
                 ;; foil
                 [:td {:class quantity-class}
@@ -87,21 +87,21 @@
                   [:td.col-sm-3
                    [bs/ButtonGroup {:justified true}
                     [bs/ButtonGroup
-                     [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality true)}
+                     [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id quality true list-id)}
                       [bs/Glyphicon {:glyph "plus"}]]]
                     [bs/ButtonGroup
-                     [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true)}
+                     [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true list-id)}
                       [bs/Glyphicon {:glyph "minus"}]]]]])]))
            qualities))]]]))
 
 (defn inventory
-  [card-id & [{:keys [num-owned owned? button-size button-style] :as opts}]]
+  [card-id list-id & [{:keys [num-owned owned? button-size button-style] :as opts}]]
   [bs/OverlayTrigger {:placement "bottom"
                       :trigger "click"
                       :root-close true
                       :overlay (r/as-component
                                  [bs/Popover {:class "inventory" :title "Card Inventory"}
-                                  [inventory-management card-id]])}
+                                  [inventory-management card-id list-id]])}
    [bs/Button
     (merge
       {:block true}

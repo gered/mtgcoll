@@ -16,7 +16,7 @@
 (defroute "/all" [] (page/page [collection/all-cards-list]))
 (defroute "/sets" [] (page/page [sets/sets-list]))
 (defroute "/set/:code" [code] (page/page [sets/set-details code]))
-(defroute "/card/:id" [id] (page/page [cards/card-details id]))
+(defroute "/card/:id" [id] (page/page [cards/card-details id 0]))
 (defroute "/stats" [] (page/page [stats/stats-page]))
 (defroute "*" [] (page/barebones-page [:div "not found"]))
 
