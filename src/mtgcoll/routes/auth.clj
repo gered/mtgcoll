@@ -12,7 +12,7 @@
       (if-let [user (auth/validate-credentials username password)]
         (do
           (log/info username " logged in.")
-          (-> (response/content "ok")
+          (-> (response/json user)
               (session/set-from-request request)
               (session/assoc :user user)))
         (do

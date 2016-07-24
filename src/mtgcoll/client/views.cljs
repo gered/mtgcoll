@@ -1,10 +1,17 @@
 (ns mtgcoll.client.views
   (:require
+    [reagent.core :as r]
     [taoensso.sente :as sente]
     [views.reagent.sente.client :as vr]
     [mtgcoll.client.auth :as auth]))
 
 (defonce sente-socket (atom {}))
+
+(defonce connected (r/atom false))
+
+(defn connected?
+  []
+  (boolean @connected))
 
 (defn chsk-exists?
   []
@@ -34,6 +41,7 @@
       (= :chsk/handshake ev-id)
       (let [[_ _ handshake-data] ev-data
             {:keys [user]}       handshake-data]
+        (reset! connected true)
         (auth/set-user-profile! user))
 
       (= :chsk/recv id)
@@ -47,6 +55,7 @@
 (defn reconnect!
   []
   (clear-keepalive-interval!)
+  (reset! connected false)
   (sente/chsk-reconnect! (:chsk @sente-socket)))
 
 (defn init!

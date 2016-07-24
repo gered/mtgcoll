@@ -25,9 +25,15 @@
                         (ajax/POST (->url "/login")
                                    :params {:username username :password password}
                                    :on-error #(reset! error "Invalid username/password.")
-                                   :on-success (fn [_]
-                                                 (on-close)
-                                                 (views/reconnect!))))))
+                                   :on-success (fn [response]
+                                                 ; i'm sick and fucking tired of using cljs-ajax. it's a bloated piece
+                                                 ; of shit that has always been too easy to use in a wrong way and when
+                                                 ; it happens, it's almost always unclear what the fuck is wrong.
+                                                 ; this is the last fucking project where i will be using it.
+                                                 (let [user-profile (clojure.walk/keywordize-keys response)]
+                                                   (on-close)
+                                                   (views/reconnect!)
+                                                   (auth/set-user-profile! user-profile)))))))
         on-key-up (fn [e]
                     (if (= 13 (.-keyCode e))
                       (on-submit)))]

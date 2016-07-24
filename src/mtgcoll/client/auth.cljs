@@ -19,6 +19,10 @@
   []
   (not (nil? @user-profile)))
 
+(defn get-username
+  []
+  (:username @user-profile))
+
 (defn set-user-profile!
   [profile]
   (reset! user-profile profile))

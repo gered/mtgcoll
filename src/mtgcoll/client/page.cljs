@@ -5,7 +5,8 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.cljs.utils :refer [->url]]
     [mtgcoll.client.auth :as auth]
-    [mtgcoll.client.components.auth :refer [login-form]]))
+    [mtgcoll.client.components.auth :refer [login-form]]
+    [mtgcoll.client.views :as views]))
 
 (defonce error (r/atom nil))
 
@@ -25,36 +26,40 @@
 
 (defn app-body
   [page-component]
-  (let [active-breadcrumb @active-breadcrumb]
-    [:div#app-body.container
-     [bs/Navbar {:inverse true}
-      [bs/Navbar.Header
-       [bs/Navbar.Brand
-        [:a#logo {:href "#/"}
-         [:span [:img {:src (->url "/img/mtg_icon.png")}]]
-         "Card Collection"]]]
-      [bs/Navbar.Collapse
-       [bs/Nav
-        [bs/NavItem {:href "#/owned" :active (= :owned active-breadcrumb)} "Owned"]
-        [bs/NavItem {:href "#/all" :active (= :all active-breadcrumb)} "All"]
-        [bs/NavItem {:href "#/sets" :active (= :sets active-breadcrumb)} "Sets"]
-        [bs/NavItem {:href "#/stats" :active (= :stats active-breadcrumb)} "Statistics"]]
-       (if (auth/auth-required?)
-         [bs/Nav {:pull-right true}
-          (if (auth/authenticated?)
-            [bs/NavDropdown {:title (:username @auth/user-profile)}
-             [bs/MenuItem {:on-click #(auth/logout!)} "Logout"]]
-            [bs/NavItem {:on-click auth/show-login-form!} "Login"])])]]
-     [bs/Modal
-      {:show    (boolean @error)
-       :on-hide clear-error!}
-      [bs/Modal.Header [bs/Modal.Title "Error"]]
-      [bs/Modal.Body
-       [:p @error]]
-      [bs/Modal.Footer
-       [bs/Button {:on-click clear-error!} "Close"]]]
-     [login-form]
-     page-component]))
+  (if (views/connected?)
+    (let [active-breadcrumb @active-breadcrumb]
+      [:div#app-body.container
+       [bs/Navbar {:inverse true}
+        [bs/Navbar.Header
+         [bs/Navbar.Brand
+          [:a#logo {:href "#/"}
+           [:span [:img {:src (->url "/img/mtg_icon.png")}]]
+           "Card Collection"]]]
+        [bs/Navbar.Collapse
+         [bs/Nav
+          [bs/NavItem {:href "#/owned" :active (= :owned active-breadcrumb)} "Owned"]
+          [bs/NavItem {:href "#/all" :active (= :all active-breadcrumb)} "All"]
+          [bs/NavItem {:href "#/sets" :active (= :sets active-breadcrumb)} "Sets"]
+          [bs/NavItem {:href "#/stats" :active (= :stats active-breadcrumb)} "Statistics"]]
+         (if (auth/auth-required?)
+           [bs/Nav {:pull-right true}
+            (if (auth/authenticated?)
+              [bs/NavDropdown {:title (:username @auth/user-profile)}
+               [bs/MenuItem {:on-click (fn [_]
+                                         (auth/logout!)
+                                         (views/reconnect!))} "Logout"]]
+              [bs/NavItem {:on-click auth/show-login-form!} "Login"])])]]
+       [bs/Modal
+        {:show    (boolean @error)
+         :on-hide clear-error!}
+        [bs/Modal.Header [bs/Modal.Title "Error"]]
+        [bs/Modal.Body
+         [:p @error]]
+        [bs/Modal.Footer
+         [bs/Button {:on-click clear-error!} "Close"]]]
+       [login-form]
+       page-component])
+    [:h1 "Connecting ..."]))
 
 (defn page
   [page-component]
