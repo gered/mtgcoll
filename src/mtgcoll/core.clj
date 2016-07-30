@@ -21,6 +21,7 @@
     [mtgcoll.routes.main-page :refer [main-page-routes]]
     [mtgcoll.routes.images :refer [image-routes]]
     [mtgcoll.routes.collection :refer [collection-routes]]
+    [mtgcoll.routes.lists :refer [list-routes]]
     [mtgcoll.routes.auth :refer [auth-routes]]))
 
 (defn init
@@ -50,6 +51,7 @@
   (-> (routes
         auth-routes
         collection-routes
+        list-routes
         image-routes
         main-page-routes
         (route/resources "/")
