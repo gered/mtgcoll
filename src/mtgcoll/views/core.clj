@@ -11,6 +11,7 @@
     [mtgcoll.views.functions.cards :as cards]
     [mtgcoll.views.functions.sets :as sets]
     [mtgcoll.views.functions.collection :as collection]
+    [mtgcoll.views.functions.lists :as lists]
     [mtgcoll.views.functions.prices :as prices]
     [mtgcoll.views.functions.statistics :as statistics]))
 
@@ -38,6 +39,9 @@
 
    (view :card-pricing get-db #'prices/card-pricing)
    (view :pricing-sources get-db #'prices/pricing-sources)
+
+   (view :list-info get-db #'lists/list-info {:result-set-fn first})
+   (view :lists-list get-db #'lists/lists-list)
 
    (view :stats/owned-total get-db #'statistics/owned-total {:row-fn :total :result-set-fn first})
    (view :stats/owned-foil-total get-db #'statistics/owned-foil-total {:row-fn :total :result-set-fn first})
@@ -71,7 +75,8 @@
          :stats/basic-type-totals :stats/most-common-types :stats/total-sets-owned-from
          :stats/total-sets-owned-all-from :stats/most-owned-sets :stats/most-copies-of-card
          :stats/most-nonland-copies-of-card :stats/total-price :stats/agg-price-stats :stats/most-valuable-cards
-         :stats/num-cards-worth-over-1-dollar :stats/card-rarity-totals :full-card-info)
+         :stats/num-cards-worth-over-1-dollar :stats/card-rarity-totals :full-card-info
+         :list-info :lists-list)
         (= username (last parameters))
 
         ; views where the user-id parameter is second
