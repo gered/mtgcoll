@@ -36,6 +36,8 @@
   (reset! show-login false))
 
 (defn logout!
-  []
-  (reset! user-profile nil)
-  (ajax/POST (->url "/logout")))
+  [on-success]
+  (ajax/POST (->url "/logout")
+             :on-success (fn [_]
+                           (reset! user-profile nil)
+                           (on-success))))

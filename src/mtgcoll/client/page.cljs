@@ -45,9 +45,8 @@
            [bs/Nav {:pull-right true}
             (if (auth/authenticated?)
               [bs/NavDropdown {:title (:username @auth/user-profile)}
-               [bs/MenuItem {:on-click (fn [_]
-                                         (auth/logout!)
-                                         (views/reconnect!))} "Logout"]]
+               [bs/MenuItem {:on-click #(auth/logout!
+                                         (fn [] (views/reconnect!)))} "Logout"]]
               [bs/NavItem {:on-click auth/show-login-form!} "Login"])])]]
        [bs/Modal
         {:show    (boolean @error)
