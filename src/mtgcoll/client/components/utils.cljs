@@ -2,9 +2,11 @@
   (:require
     [clojure.string :as string]
     [reagent.core :as r]
+    [cljsjs.showdown]
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :as c]
-    [webtools.cljs.utils :refer [->url]]))
+    [webtools.cljs.utils :refer [->url]]
+    [mtgcoll.client.utils :refer [get-field-value]]))
 
 (defn symbol-image
   [symbol & {:keys [size]}]
@@ -87,3 +89,34 @@
        components
        (if sorting-on-this?
          [c/raw-html :span (if ascending? "&#9650;" "&#9660;")])]]]))
+
+(def ^:private markdown-converter (new js/showdown.Converter))
+
+(defn markdown
+  [s]
+  [c/raw-html :span (.makeHtml markdown-converter s)])
+
+(defn click-to-edit-textarea
+  [value & [{:keys [placeholder rows on-update render]}]]
+  (let [editing?      (r/atom false)
+        current-value (r/atom value)]
+    (fn [value & [{:keys [placeholder rows]}]]
+      [bs/FormGroup
+       (if-not @editing?
+         [bs/FormControl.Static
+          {:on-mouse-down #(reset! editing? true)}
+          (let [content (or @current-value placeholder)]
+            (if render
+              (render content)
+              content))]
+         [bs/FormControl
+          {:component-class "textarea"
+           :ref             #(if % (.focus (r/dom-node %)))
+           :rows            rows
+           :default-value   @current-value
+           :placeholder     placeholder
+           :on-blur         (fn [_]
+                              (let [value (string/trim (str @current-value))]
+                                (reset! editing? false)
+                                (if on-update (on-update (if (string/blank? value) nil value)))))
+           :on-change       #(reset! current-value (get-field-value %))}])])))

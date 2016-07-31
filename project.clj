@@ -33,6 +33,7 @@
                  [slugger "1.0.1"]
                  [cheshire "5.6.1"]
                  [cljsjs/chartjs "2.0.1-0"]
+                 [cljsjs/showdown "1.4.2-0"]
                  [luminus/ring-ttl-session "0.3.1"]
 
                  [gered/config "0.1"]]
