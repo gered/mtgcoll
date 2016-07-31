@@ -10,8 +10,10 @@
   (wrap-middleware
     (routes
       (POST "/lists/add" [name public? requires-qualities? :as request]
-        (lists/add-list! name public? requires-qualities?)
-        (response/json {:status "ok"}))
+        (let [result (lists/add-list! name public? requires-qualities?)]
+          (response/json
+            {:status "ok"
+             :id     result})))
 
       (POST "/lists/remove" [list-id :as request]
         (lists/remove-list! list-id)

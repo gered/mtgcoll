@@ -6,12 +6,14 @@
 
 (defn add-list!
   [name public? requires-qualities?]
-  (vexec! view-system @db
-          ["insert into lists
-            (name, is_public, require_qualities)
-            values
-            (?, ?, ?)"
-           (str name) (boolean public?) (boolean requires-qualities?)]))
+  (let [result (vexec! view-system @db
+                       ["insert into lists
+                         (name, is_public, require_qualities)
+                         values
+                         (?, ?, ?)
+                         returning id"
+                        (str name) (boolean public?) (boolean requires-qualities?)])]
+    (->> result first :id)))
 
 (defn remove-list!
   [list-id]
