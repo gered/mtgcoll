@@ -5,6 +5,7 @@
     [views.reagent.client.component :as vc :refer [view-cursor] :refer-macros [defvc]]
     [webtools.reagent.bootstrap :as bs]
     [webtools.cljs.utils :refer [->url]]
+    [mtgcoll.common :as c]
     [mtgcoll.client.page :refer [set-active-breadcrumb!]]
     [mtgcoll.client.components.cards :refer [card-list-table ->card-list-pager]]
     [mtgcoll.client.components.utils :refer [set-image set-label set-heading th-sortable]]
@@ -62,7 +63,7 @@
   (let [fixed-filters         [{:field :set-code :value set-code :comparison :=}]
         active-search-filters (r/cursor set-cards-search-filters [:active-filters])
         pager                 (r/cursor set-cards-search-filters [:pager])
-        list-id               0]
+        list-id               c/owned-list-id]
     (s/apply-search-filters! set-cards-search-filters fixed-filters)
     (fn []
       [:div.set-cards-list

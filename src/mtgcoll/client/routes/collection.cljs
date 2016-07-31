@@ -5,6 +5,7 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :refer [->keyed-comps]]
     [webtools.cljs.utils :refer [pprint-json]]
+    [mtgcoll.common :as c]
     [mtgcoll.client.page :refer [set-active-breadcrumb!]]
     [mtgcoll.client.components.cards :refer [card-list-table ->card-list-pager]]
     [mtgcoll.client.components.search :as s]
@@ -17,7 +18,7 @@
   []
   (let [active-search-filters (r/cursor all-cards-search-filters [:active-filters])
         pager                 (r/cursor all-cards-search-filters [:pager])
-        list-id               0]
+        list-id               c/owned-list-id]
     (fn []
       (set-active-breadcrumb! :all)
       [:div
@@ -35,7 +36,7 @@
   (let [fixed-filters         [{:field :owned? :value true :comparison :=}]
         active-search-filters (r/cursor owned-cards-search-filters [:active-filters])
         pager                 (r/cursor owned-cards-search-filters [:pager])
-        list-id               0]
+        list-id               c/owned-list-id]
     (s/apply-search-filters! owned-cards-search-filters fixed-filters)
     (fn []
       (set-active-breadcrumb! :owned)

@@ -6,6 +6,7 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.reagent.components :refer [->keyed-comps]]
     [webtools.cljs.utils :refer [->url]]
+    [mtgcoll.common :as c]
     [mtgcoll.client.auth :as auth]
     [mtgcoll.client.page :refer [set-active-breadcrumb!]]
     [mtgcoll.client.utils :refer [format-number format-currency get-field-value]]
@@ -242,7 +243,7 @@
   (let [pricing-sources (view-cursor :pricing-sources)
         online?         (:online? @settings)
         pricing-source  (:pricing-source @settings)
-        list-id         0]
+        list-id         c/owned-list-id]
     (set-active-breadcrumb! :stats)
     (if (and (not (vc/loading? pricing-sources))
              (nil? (:pricing-source @settings)))
