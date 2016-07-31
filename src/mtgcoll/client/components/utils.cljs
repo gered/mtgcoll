@@ -120,3 +120,23 @@
                                 (reset! editing? false)
                                 (if on-update (on-update (if (string/blank? value) nil value)))))
            :on-change       #(reset! current-value (get-field-value %))}])])))
+
+(defn confirm-modal
+  [visibility-atom {:keys [title body yes-label no-label on-yes on-no]}]
+  [bs/Modal
+   {:show    (boolean @visibility-atom)
+    :on-hide #(reset! visibility-atom false)}
+   [bs/Modal.Header [bs/Modal.Title title]]
+   [bs/Modal.Body body]
+   [bs/Modal.Footer
+    [bs/Button
+     {:bsStyle  "primary"
+      :on-click (fn [_]
+                  (on-yes)
+                  (reset! visibility-atom false))}
+     (or yes-label "Yes")]
+    [bs/Button
+     {:on-click (fn [_]
+                  (if on-no (on-no))
+                  (reset! visibility-atom false))}
+     (or no-label "No")]]])
