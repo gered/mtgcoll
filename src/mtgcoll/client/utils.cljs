@@ -63,3 +63,8 @@
   [n & [number-only?]]
   (if n
     (str (if-not number-only? "$") (pprint/cl-format nil "~,2f" n))))
+
+(defn parse-int
+  [s]
+  (if s
+    (js/parseInt (string/trim s) 10)))

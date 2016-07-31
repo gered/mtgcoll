@@ -8,8 +8,10 @@
     [mtgcoll.client.page :as page]
     [mtgcoll.client.routes.cards :as cards]
     [mtgcoll.client.routes.collection :as collection]
+    [mtgcoll.client.routes.lists :as lists]
     [mtgcoll.client.routes.sets :as sets]
-    [mtgcoll.client.routes.stats :as stats]))
+    [mtgcoll.client.routes.stats :as stats]
+    [mtgcoll.client.utils :refer [parse-int]]))
 
 (defroute "/" [] (page/page [collection/owned-cards-list]))
 (defroute "/owned" [] (page/page [collection/owned-cards-list]))
@@ -17,6 +19,8 @@
 (defroute "/sets" [] (page/page [sets/sets-list]))
 (defroute "/set/:code" [code] (page/page [sets/set-details code]))
 (defroute "/card/:id" [id] (page/page [cards/card-details id 0]))
+(defroute "/lists" [] (page/page [lists/lists-list]))
+(defroute "/list/:id" [id] (page/page [lists/list-details (parse-int id)]))
 (defroute "/stats" [] (page/page [stats/stats-page]))
 (defroute "*" [] (page/barebones-page [:div "not found"]))
 

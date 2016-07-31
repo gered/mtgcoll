@@ -19,6 +19,11 @@
   []
   (not (nil? @user-profile)))
 
+(defn can-modify-data?
+  []
+  (or (authenticated?)
+      (not (auth-required?))))
+
 (defn get-username
   []
   (:username @user-profile))

@@ -39,6 +39,7 @@
          [bs/Nav
           [bs/NavItem {:href "#/owned" :active (= :owned active-breadcrumb)} "Owned"]
           [bs/NavItem {:href "#/all" :active (= :all active-breadcrumb)} "All"]
+          [bs/NavItem {:href "#/lists" :active (= :lists active-breadcrumb)} "Lists"]
           [bs/NavItem {:href "#/sets" :active (= :sets active-breadcrumb)} "Sets"]
           [bs/NavItem {:href "#/stats" :active (= :stats active-breadcrumb)} "Statistics"]]
          (if (auth/auth-required?)

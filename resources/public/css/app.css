@@ -25,6 +25,24 @@ html, body {
 	margin: 20px 0;
 }
 
+.context
+{
+	position: relative;
+}
+
+.absolute {
+	position: absolute;
+}
+
+.absolute.top-right {
+	top: 0;
+	right: 0;
+}
+
+.large-font {
+	font-size: 20px;
+}
+
 div.popover.card-image {
 	max-width: none;
 }
