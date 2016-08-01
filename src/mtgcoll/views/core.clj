@@ -34,8 +34,8 @@
    (view :simple-sets-list get-db #'sets/simple-sets-list)
    (view :sets-list get-db #'sets/sets-list)
 
-   (view :owned-card get-db #'collection/owned-card)
-   (view :total-owned-of-card get-db #'collection/total-owned-of-card)
+   (view :card-inventory get-db #'collection/card-inventory)
+   (view :total-card-inventory get-db #'collection/total-card-inventory)
 
    (view :card-pricing get-db #'prices/card-pricing)
    (view :pricing-sources get-db #'prices/pricing-sources)

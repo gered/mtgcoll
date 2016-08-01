@@ -32,7 +32,7 @@
 
 (defvc inventory-management
   [card-id list-id]
-  (let [inventory      (view-cursor :owned-card card-id)
+  (let [inventory      (view-cursor :card-inventory card-id list-id (auth/get-username))
         inventory      (group-by :quality @inventory)
         colspan        (if (can-modify-inventory?) 2 1)
         quantity-class (if (can-modify-inventory?)
