@@ -41,7 +41,9 @@
    (view :pricing-sources get-db #'prices/pricing-sources)
 
    (view :list-info get-db #'lists/list-info {:result-set-fn first})
+   (view :list-settings get-db #'lists/list-settings {:result-set-fn first})
    (view :lists-list get-db #'lists/lists-list)
+   (view :lists-basic-list get-db #'lists/lists-basic-list)
 
    (view :stats/owned-total get-db #'statistics/owned-total {:row-fn :total :result-set-fn first})
    (view :stats/owned-foil-total get-db #'statistics/owned-foil-total {:row-fn :total :result-set-fn first})
@@ -76,7 +78,7 @@
          :stats/total-sets-owned-all-from :stats/most-owned-sets :stats/most-copies-of-card
          :stats/most-nonland-copies-of-card :stats/total-price :stats/agg-price-stats :stats/most-valuable-cards
          :stats/num-cards-worth-over-1-dollar :stats/card-rarity-totals :full-card-info
-         :list-info :lists-list)
+         :list-info :list-settings :lists-list :lists-basic-list :card-inventory :total-card-inventory)
         (= username (last parameters))
 
         ; views where the user-id parameter is second
