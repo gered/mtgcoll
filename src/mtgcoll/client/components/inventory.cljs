@@ -30,11 +30,9 @@
   (or (not (auth/auth-required?))
       (auth/authenticated?)))
 
-(defvc inventory-management
-  [card-id list-id]
-  (let [inventory      (view-cursor :card-inventory card-id list-id (auth/get-username))
-        inventory      (group-by :quality @inventory)
-        colspan        (if (can-modify-inventory?) 2 1)
+(defn inventory-with-qualities-management
+  [card-id list-id inventory list-settings]
+  (let [colspan        (if (can-modify-inventory?) 2 1)
         quantity-class (if (can-modify-inventory?)
                          "quantity col-sm-1"
                          "quantity col-sm-4")]
@@ -94,6 +92,43 @@
                      [bs/Button {:bsStyle "danger" :disabled (= 0 foil-quantity) :on-click #(on-remove-card card-id quality true list-id)}
                       [bs/Glyphicon {:glyph "minus"}]]]]])]))
            qualities))]]]))
+
+(defn inventory-without-qualities-management
+  [card-id list-id inventory list-settings]
+  (let [{:keys [quantity]} (-> inventory (get nil) (first))]
+    [bs/Grid {:fluid true :class "inventory-container"}
+     (if (can-modify-inventory?)
+       [bs/Row
+        [bs/Col {:sm 6 :class "quantity"}
+         (if (> quantity 0)
+           [:strong quantity]
+           [:span.text-muted 0])]
+        [bs/Col {:sm 6}
+         [bs/ButtonGroup {:justified true}
+          [bs/ButtonGroup
+           [bs/Button {:bsStyle "success" :on-click #(on-add-card card-id nil false list-id)}
+            [bs/Glyphicon {:glyph "plus"}]]]
+          [bs/ButtonGroup
+           [bs/Button {:bsStyle "danger" :disabled (= 0 quantity) :on-click #(on-remove-card card-id nil false list-id)}
+            [bs/Glyphicon {:glyph "minus"}]]]]]]
+       [bs/Row
+        [bs/Col {:sm 12 :class "quantity"}
+         (if (> quantity 0)
+           [:strong quantity]
+           [:span.text-muted 0])]])]))
+
+(defvc inventory-management
+  [card-id list-id]
+  (let [list-settings     (view-cursor :list-settings list-id (auth/get-username))
+        inventory         (view-cursor :card-inventory card-id list-id (auth/get-username))
+        grouped-inventory (group-by :quality @inventory)]
+    (if (and (not (vc/loading? list-settings))
+             (not (vc/loading? inventory)))
+      (if (:require_qualities @list-settings)
+        [inventory-with-qualities-management card-id list-id grouped-inventory @list-settings]
+        [inventory-without-qualities-management card-id list-id grouped-inventory @list-settings])
+      [:div.inventory-container
+       [:p "Loading ..."]])))
 
 (defn inventory
   [card-id list-id & [{:keys [num-owned owned? button-size button-style] :as opts}]]
