@@ -161,6 +161,10 @@ div.card-title > h1 > small {
 	position: relative;
 }
 
+.statistics-container .header .page-header small a {
+	color: #777;
+}
+
 .statistics-container .settings {
 	position: absolute;
 	top: 0;

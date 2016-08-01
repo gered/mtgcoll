@@ -252,7 +252,10 @@
              (not (vc/loading? pricing-sources)))
       [:div.statistics-container
        [:div.header
-        [bs/PageHeader "Statistics " [:small (if (= c/owned-list-id list-id) "Owned Cards" (:name @list-info))]]
+        [bs/PageHeader "Statistics "
+         [:small (if (= c/owned-list-id list-id)
+                   "Owned Cards"
+                   [:a {:href (->url "#/list/" list-id)} (:name @list-info)])]]
         [:div.settings
          [bs/Form {:inline true}
           [bs/FormGroup {:bsSize "large"}
