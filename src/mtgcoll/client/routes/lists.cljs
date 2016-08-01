@@ -164,7 +164,7 @@
                                                                            [{:field :owned? :value true :comparison :=}]
                                                                            [])))))))})
                                    "Limit To List Cards Only?"]]}]
-         [card-list-table list-id @active-search-filters pager #_{:no-owned-highlight? @limit-to-list?}]]))))
+         [card-list-table list-id @active-search-filters pager {:no-owned-highlight? @limit-to-list?}]]))))
 
 (defvc list-details
   [list-id]

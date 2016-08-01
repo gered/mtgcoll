@@ -54,7 +54,7 @@
   (let [sort-settings (r/atom
                         {:sort-by    :name
                          :ascending? true})]
-    (fn [list-id filters pager]
+    (fn [list-id filters pager & [{:keys [no-owned-highlight?] :as options}]]
       (let [cards      (view-cursor :cards list-id (auth/get-username) filters (:sort-by @sort-settings) (:ascending? @sort-settings) (:page @pager) (:page-size @pager))
             card-count (view-cursor :count-of-cards list-id (auth/get-username) filters)
             num-pages  (min (js/Math.ceil (/ @card-count (:page-size @pager)))
