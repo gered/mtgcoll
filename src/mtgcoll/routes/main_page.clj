@@ -29,7 +29,7 @@
        [:div.content.text-center.text-muted
         "mtgcoll " (get-app-version)
         "&nbsp; | &nbsp;"
-        [:a {:href "https://github.com/gered/mtgcoll"} "Source code"] " licensed under MIT"]]]
+        [:a {:href "https://github.com/gered/mtgcoll"} "GitHub Project"]]]]
      (js-env-settings "" (boolean (config/get :dev?)))
      (javascript-tag
        (string/join "\n" [(str "var __authRequired = " (boolean (seq (config/get :users))))]))
