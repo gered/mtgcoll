@@ -16,14 +16,24 @@
       (if-not (first (jdbc/query dt ["select count(*) from lists where id = ? and is_public in (true, ?)" list-id public-only?]))
         (throw (new Exception (str "Not authorized to update list:" list-id)))
         (let [num-updates (first
-                            (vexec! view-system dt
-                                    ["update collection
-                                      set quantity = quantity + ?
-                                      where card_id = ? and
-                                            quality = ? and
-                                            foil = ? and
-                                            list_id = ?"
-                                     quantity-change card-id quality foil? list-id]))]
+                            ; i love that SQL forces you to use "is null" ...
+                            (if (nil? quality)
+                              (vexec! view-system dt
+                                      ["update collection
+                                        set quantity = quantity + ?
+                                        where card_id = ? and
+                                              quality is null and
+                                              foil = ? and
+                                              list_id = ?"
+                                       quantity-change card-id foil? list-id])
+                              (vexec! view-system dt
+                                      ["update collection
+                                        set quantity = quantity + ?
+                                        where card_id = ? and
+                                              quality = ? and
+                                              foil = ? and
+                                              list_id = ?"
+                                       quantity-change card-id quality foil? list-id])))]
           (if (= 0 num-updates)
             (first
               (vexec! view-system dt
