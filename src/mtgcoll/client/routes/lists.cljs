@@ -134,10 +134,11 @@
 (defonce list-cards-search-filters
   (r/atom (s/->search-filters)))
 
+(defonce limit-to-list? (r/atom true))
+
 (defn list-cards-list
   [list-id]
-  (let [limit-to-list?        (r/atom true)
-        fixed-filters         [{:field :owned? :value true :comparison :=}]
+  (let [fixed-filters         (if @limit-to-list? [{:field :owned? :value true :comparison :=}] [])
         active-search-filters (r/cursor list-cards-search-filters [:active-filters])
         pager                 (r/cursor list-cards-search-filters [:pager])]
     (s/apply-search-filters! list-cards-search-filters fixed-filters)
