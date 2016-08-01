@@ -6,6 +6,7 @@
     [webtools.reagent.bootstrap :as bs]
     [webtools.cljs.ajax :as ajax]
     [webtools.cljs.utils :refer [->url]]
+    [mtgcoll.common :as c]
     [mtgcoll.client.auth :as auth]
     [mtgcoll.client.page :refer [set-error!]]))
 
@@ -100,16 +101,21 @@
                       :trigger "click"
                       :root-close true
                       :overlay (r/as-component
-                                 [bs/Popover {:class "inventory" :title "Card Inventory"}
+                                 [bs/Popover {:class "inventory" :title "Inventory"}
                                   [inventory-management card-id list-id]])}
-   [bs/Button
-    (merge
-      {:block true}
-      (if button-size {:bsSize button-size})
-      (if button-style {:bsStyle button-style}))
-    (if (and num-owned
-             (> (or num-owned 0) 0))
-      [:span "Owned: " [:strong (or num-owned 0)]]
-      (if owned? "Owned" "Not Owned"))
-    " "
-    [:span.caret]]])
+   (let [owned-list? (= c/owned-list-id list-id)]
+     [bs/Button
+      (merge
+        {:block true}
+        (if button-size {:bsSize button-size})
+        (if button-style {:bsStyle button-style}))
+      (if (and num-owned
+               (> (or num-owned 0) 0))
+        (if owned-list?
+          [:span "Owned: " [:strong (or num-owned 0)]]
+          [:span [:strong (or num-owned 0)]])
+        (if owned-list?
+          (if owned? "Owned" "Not Owned")
+          (if owned? "Yes" "None")))
+      " "
+      [:span.caret]])])
