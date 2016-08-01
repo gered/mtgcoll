@@ -145,7 +145,7 @@ div.card-title > h1 > small {
 	margin-left: 20px;
 }
 
-.set-details {
+.set-details, .list-details {
 	padding-bottom: 15px;
 	margin-bottom: 15px;
 	border-bottom: 1px solid #eee;

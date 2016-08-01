@@ -178,7 +178,7 @@
            :value value)))
 
 (defn search-field
-  [filter existing-search-fields remove-button on-enter]
+  [filter existing-search-fields remove-button on-enter exclude-filters]
   (let [field             (:field @filter)
         field-type        (:type @filter)
         invalid?          (:invalid? @filter)
@@ -195,6 +195,9 @@
             (remove
               #(and (contains? existing-search-fields (first %))
                     (not= (:field @filter) (first %))))
+            (remove
+              (fn [[k _]]
+                (some #{k} exclude-filters)))
             (map (fn [[k v]] [k (:label v)]))
             (sort-by second)
             (map
@@ -293,7 +296,7 @@
        (doall)))
 
 (defn search-filter-selector
-  [search-filters & [{:keys [fixed-active-filters no-filters-message?] :as options}]]
+  [search-filters & [{:keys [fixed-active-filters exclude-filters no-filters-message? extra] :as options}]]
   (let [fixed-filter-fields    (mapv :field fixed-active-filters)
         selected-search-fields (-> (get-selected-search-fields @search-filters)
                                    (into fixed-filter-fields))
@@ -315,7 +318,8 @@
             :bsStyle  "danger"
             :on-click #(remove-filter! filter search-filters)}
            [bs/Glyphicon {:glyph "minus"}] " Remove Filter"]
-          #(apply-search-filters! search-filters fixed-active-filters)])
+          #(apply-search-filters! search-filters fixed-active-filters)
+          exclude-filters])
        filters)
      [bs/Row
       [bs/Col {:sm 2}
@@ -323,7 +327,7 @@
         {:block    true
          :on-click #(add-filter! search-filters)}
         [bs/Glyphicon {:glyph "plus"}] " Add Filter"]]
-      [bs/Col {:sm 6}
+      [bs/Col {:sm 10}
        [bs/Button
         {:bsStyle  "primary"
          :on-click #(apply-search-filters! search-filters fixed-active-filters)}
@@ -332,4 +336,6 @@
        [bs/Button
         {:bsStyle "warning"
          :on-click #(reset-search-filters! search-filters fixed-active-filters)}
-        "Reset"]]]]))
+        "Reset"]
+       " "
+       extra]]]))

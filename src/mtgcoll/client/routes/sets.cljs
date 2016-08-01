@@ -65,7 +65,7 @@
         pager                 (r/cursor set-cards-search-filters [:pager])
         list-id               c/owned-list-id]
     (s/apply-search-filters! set-cards-search-filters fixed-filters)
-    (fn []
+    (fn [set-code]
       [:div.set-cards-list
        [s/search-filter-selector set-cards-search-filters {:fixed-active-filters fixed-filters}]
        [card-list-table list-id @active-search-filters pager]])))
