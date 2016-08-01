@@ -23,11 +23,19 @@
 (defn lists-list
   [user-id]
   (let [public-only? (nil? user-id)]
-    ["select id, name, is_public, require_qualities
-      from lists
-      where id != 0
-            and is_public in (true, ?)
-      order by name"
+    ["select l.id,
+             l.name,
+             l.is_public,
+             l.require_qualities,
+             (
+                 select coalesce(sum(lc.quantity), 0)
+                 from lists_card_quantities lc
+                 where lc.list_id = l.id
+             ) as num_cards
+      from lists l
+      where l.id != 0
+            and l.is_public in (true, ?)
+      order by l.name"
      public-only?]))
 
 (defn lists-basic-list

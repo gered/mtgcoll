@@ -98,18 +98,20 @@
               {:bordered true :striped true :condensed true :hover true}
               [:thead
                [:tr
-                [:th "Name"]
-                [:th "Cards"]]]
+                [:th.col-sm-7 "Name"]
+                [:th.col-sm-3 "Card Qualities?"]
+                [:th.col-sm-2 "Cards"]]]
               [:tbody
                (doall
                  (map
-                   (fn [{:keys [id name is_public]}]
+                   (fn [{:keys [id name is_public require_qualities num_cards]}]
                      ^{:key id}
                      [:tr
                       (if (and (auth/authenticated?) (not is_public))
                         {:class "warning"})
                       [:td [:a {:href (->url "#/list/" id)} [:div name]]]
-                      [:td "--"]])
+                      [:td (if require_qualities "Yes" "")]
+                      [:td num_cards]])
                    @lists))]]))]))))
 
 (defn on-update-list-notes!
