@@ -1,4 +1,4 @@
-(defproject mtgcoll "1.1"
+(defproject mtgcoll "1.1.1-SNAPSHOT"
   :description  "Magic: The Gathering card database and personal collection management web app."
   :url          "https://github.com/gered/mtgcoll"
   :license      {:name "MIT License"
