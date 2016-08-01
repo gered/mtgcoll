@@ -16,7 +16,8 @@
 
 (defn create-list-form
   [visibility-atom]
-  (let [values    (r/atom nil)
+  (let [values    (r/atom {:public?             true
+                           :requires-qualities? true})
         error     (r/atom nil)
         on-close  (fn []
                     (reset! values nil)
@@ -56,18 +57,23 @@
           [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Card Qualities"]]
           [bs/Col {:sm 6}
            [bs/Checkbox
-            {:on-change (fn [e]
-                          (let [checked? (-> e .-target .-checked)]
-                            (swap! values assoc :requires-qualities?
-                                   (if checked? true false))))}]]]
-         [bs/FormGroup
-          [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Public"]]
-          [bs/Col {:sm 6}
-           [bs/Checkbox
-            {:on-change (fn [e]
-                          (let [checked? (-> e .-target .-checked)]
-                            (swap! values assoc :public?
-                                   (if checked? true false))))}]]]]]
+            (merge
+              (if (:requires-qualities? @values) {:checked true})
+              {:on-change (fn [e]
+                            (let [checked? (-> e .-target .-checked)]
+                              (swap! values assoc :requires-qualities?
+                                     (if checked? true false))))})]]]
+         (if (auth/auth-required?)
+           [bs/FormGroup
+            [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Public"]]
+            [bs/Col {:sm 6}
+             [bs/Checkbox
+              (merge
+                (if (:public? @values) {:checked true})
+                {:on-change (fn [e]
+                              (let [checked? (-> e .-target .-checked)]
+                                (swap! values assoc :public?
+                                       (if checked? true false))))})]]])]]
        [bs/Modal.Footer
         [bs/Button {:bsStyle "primary" :on-click on-submit} "OK"]
         [bs/Button {:on-click on-close} "Cancel"]]])))
@@ -182,7 +188,8 @@
               (if (:require_qualities @list) [:span.large-font [bs/Label {:bsStyle "primary"} "Card Qualities"] " "])
               [bs/DropdownButton {:title "Actions"}
                [bs/MenuItem {:on-click #(js/alert "TODO: Copy to Owned")} "Copy to Owned"]
-               [bs/MenuItem {:on-click #(change-list-visibility! list-id (not (:is_public @list)))} (if (:is_public @list) "Make Private" "Make Public")]
+               (if (auth/auth-required?)
+                 [bs/MenuItem {:on-click #(change-list-visibility! list-id (not (:is_public @list)))} (if (:is_public @list) "Make Private" "Make Public")])
                [bs/MenuItem {:on-click #(reset! show-delete-confirm? true)} "Delete"]]])
            [bs/PageHeader (:name @list)]
            [confirm-modal
