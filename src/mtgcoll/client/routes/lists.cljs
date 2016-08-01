@@ -185,15 +185,19 @@
 
           :else
           [:div.context
-           (if (auth/can-modify-data?)
-             [:div.absolute.top-right
-              (if-not (:is_public @list) [:span.large-font [bs/Label {:bsStyle "danger"} "Private"] " "])
-              (if (:require_qualities @list) [:span.large-font [bs/Label {:bsStyle "primary"} "Card Qualities"] " "])
-              [bs/DropdownButton {:title "Actions"}
-               [bs/MenuItem {:on-click #(js/alert "TODO: Copy to Owned")} "Copy to Owned"]
-               (if (auth/auth-required?)
-                 [bs/MenuItem {:on-click #(change-list-visibility! list-id (not (:is_public @list)))} (if (:is_public @list) "Make Private" "Make Public")])
-               [bs/MenuItem {:on-click #(reset! show-delete-confirm? true)} "Delete"]]])
+           [:div.absolute.top-right
+            [:span [bs/Button {:bsStyle "info"
+                               :href (->url "#/stats/list/" list-id)} "List Statistics"]]
+            " "
+            (if (auth/can-modify-data?)
+              [:span
+               (if-not (:is_public @list) [:span.large-font [bs/Label {:bsStyle "danger"} "Private"] " "])
+               (if (:require_qualities @list) [:span.large-font [bs/Label {:bsStyle "primary"} "Card Qualities"] " "])
+               [bs/DropdownButton {:title "Actions"}
+                [bs/MenuItem {:on-click #(js/alert "TODO: Copy to Owned")} "Copy to Owned"]
+                (if (auth/auth-required?)
+                  [bs/MenuItem {:on-click #(change-list-visibility! list-id (not (:is_public @list)))} (if (:is_public @list) "Make Private" "Make Public")])
+                [bs/MenuItem {:on-click #(reset! show-delete-confirm? true)} "Delete"]]])]
            [bs/PageHeader (:name @list)]
            [confirm-modal
             show-delete-confirm?

@@ -239,45 +239,48 @@
                            :pricing-source nil}))
 
 (defvc stats-page
-  []
+  [list-id]
   (let [pricing-sources (view-cursor :pricing-sources)
+        list-info       (view-cursor :list-info list-id (auth/get-username))
         online?         (:online? @settings)
-        pricing-source  (:pricing-source @settings)
-        list-id         c/owned-list-id]
+        pricing-source  (:pricing-source @settings)]
     (set-active-breadcrumb! :stats)
     (if (and (not (vc/loading? pricing-sources))
              (nil? (:pricing-source @settings)))
       (swap! settings assoc :pricing-source (->> @pricing-sources first :source)))
-    [:div.statistics-container
-     [:div.header
-      [bs/PageHeader "Collection Statistics"]
-      [:div.settings
-       [bs/Form {:inline true}
-        [bs/FormGroup {:bsSize "large"}
-         [bs/FormControl
-          {:component-class "select"
-           :value           (if online? "Online" "Paper")
-           :on-change       #(swap! settings assoc :online? (= "Online" (get-field-value %)))}
-          [:option "Paper"]
-          [:option "Online"]]]
-        [bs/FormGroup {:bsSize "large"}
-         [bs/FormControl
-          {:component-class "select"
-           :value           (or (:pricing-source @settings) "")
-           :on-change       #(swap! settings assoc :pricing-source (get-field-value %))}
-          (map
-            (fn [{:keys [source]}]
-              ^{:key source} [:option {:value (or source "")} source])
-            @pricing-sources)]]]]]
-     [bs/Grid {:fluid true :class "statistics"}
-      [widget-row
-       [bs/Col {:sm 4}
-        [widget-row [widget-summary-stats online? list-id pricing-source]]
-        [widget-row [widget-rarity-totals online? list-id]]
-        [widget-row [widget-most-owned-sets online? list-id]]]
-       [bs/Col {:sm 8}
-        [widget-row [widget-color-totals online? list-id]]
-        [widget-row [widget-basic-type-totals online? list-id]]
-        [widget-row [widget-most-valuable-cards online? list-id pricing-source {:width 10}]]
-        [widget-row [widget-most-copies-of-card online? list-id {:width 10}]]
-        [widget-row [widget-most-nonland-copies-of-card online? list-id {:width 10}]]]]]]))
+    (if (and (not (vc/loading? list-info))
+             (not (vc/loading? pricing-sources)))
+      [:div.statistics-container
+       [:div.header
+        [bs/PageHeader "Statistics " [:small (if (= c/owned-list-id list-id) "Owned Cards" (:name @list-info))]]
+        [:div.settings
+         [bs/Form {:inline true}
+          [bs/FormGroup {:bsSize "large"}
+           [bs/FormControl
+            {:component-class "select"
+             :value           (if online? "Online" "Paper")
+             :on-change       #(swap! settings assoc :online? (= "Online" (get-field-value %)))}
+            [:option "Paper"]
+            [:option "Online"]]]
+          [bs/FormGroup {:bsSize "large"}
+           [bs/FormControl
+            {:component-class "select"
+             :value           (or (:pricing-source @settings) "")
+             :on-change       #(swap! settings assoc :pricing-source (get-field-value %))}
+            (map
+              (fn [{:keys [source]}]
+                ^{:key source} [:option {:value (or source "")} source])
+              @pricing-sources)]]]]]
+       [bs/Grid {:fluid true :class "statistics"}
+        [widget-row
+         [bs/Col {:sm 4}
+          [widget-row [widget-summary-stats online? list-id pricing-source]]
+          [widget-row [widget-rarity-totals online? list-id]]
+          [widget-row [widget-most-owned-sets online? list-id]]]
+         [bs/Col {:sm 8}
+          [widget-row [widget-color-totals online? list-id]]
+          [widget-row [widget-basic-type-totals online? list-id]]
+          [widget-row [widget-most-valuable-cards online? list-id pricing-source {:width 10}]]
+          [widget-row [widget-most-copies-of-card online? list-id {:width 10}]]
+          [widget-row [widget-most-nonland-copies-of-card online? list-id {:width 10}]]]]]]
+      [:div "Loading ..."])))

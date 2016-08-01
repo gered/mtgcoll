@@ -21,7 +21,8 @@
 (defroute "/card/:id" [id] (page/page [cards/card-details id 0]))
 (defroute "/lists" [] (page/page [lists/lists-list]))
 (defroute "/list/:id" [id] (page/page [lists/list-details (parse-int id)]))
-(defroute "/stats" [] (page/page [stats/stats-page]))
+(defroute "/stats/list/:list-id" [list-id] (page/page [stats/stats-page (parse-int list-id)]))
+(defroute "/stats" [] (page/page [stats/stats-page 0]))
 (defroute "*" [] (page/barebones-page [:div "not found"]))
 
 (defn ^:export run
