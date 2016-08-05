@@ -195,16 +195,16 @@
              " "]
             (if (auth/can-modify-data?)
               [:span
-               [bs/ButtonGroup
-                [bs/Button
+               [bs/DropdownButton {:title "Actions"}
+                [bs/MenuItem
                  {:on-click #(js/alert "TODO: Copy to Owned")}
                  "Copy to Owned Collection"]
                 (if (auth/auth-required?)
-                  [bs/Button
+                  [bs/MenuItem
                    {:bsStyle  "warning"
                     :on-click #(change-list-visibility! list-id (not (:is_public @list)))}
                    (if (:is_public @list) "Make Private" "Make Public")])
-                [bs/Button
+                [bs/MenuItem
                  {:bsStyle  "danger"
                   :on-click #(reset! show-delete-confirm? true)}
                  "Delete"]]])]
