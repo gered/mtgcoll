@@ -78,6 +78,46 @@
         [bs/Button {:bsStyle "primary" :on-click on-submit} "OK"]
         [bs/Button {:on-click on-close} "Cancel"]]])))
 
+(defn rename-list-form
+  [visibility-atom list-id list-name]
+  (let [values    (r/atom {:name list-name})
+        error     (r/atom nil)
+        on-close  (fn []
+                    (reset! values nil)
+                    (reset! error nil)
+                    (reset! visibility-atom false))
+        on-submit (fn []
+                    (reset! error nil)
+                    (let [{:keys [name]} @values]
+                      (if (string/blank? name)
+                        (reset! error "List name must be provided.")
+                        (ajax/POST (->url "/lists/update-name")
+                                   :params {:list-id list-id :name name}
+                                   :on-error #(reset! error "Could not update list name. Make sure the name is unique.")
+                                   :on-success #(on-close)))))
+        on-key-up #(if (= 13 (.-keyCode %))
+                    (on-submit))]
+    (fn []
+      [bs/Modal
+       {:show    (boolean @visibility-atom)
+        :on-hide #(reset! visibility-atom false)}
+       [bs/Modal.Header [bs/Modal.Title "Update List Name"]]
+       [bs/Modal.Body
+        (if @error
+          [bs/Alert {:bsStyle "danger"} @error])
+        [bs/Form {:horizontal true}
+         [bs/FormGroup
+          [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "List Name"]]
+          [bs/Col {:sm 6}
+           [bs/FormControl
+            {:type          "text"
+             :default-value (or (:name @values) "")
+             :on-change     #(swap! values assoc :name (get-field-value %))
+             :on-key-up     on-key-up}]]]]]
+       [bs/Modal.Footer
+        [bs/Button {:bsStyle "primary" :on-click on-submit} "OK"]
+        [bs/Button {:on-click on-close} "Cancel"]]])))
+
 (defvc lists-list
   []
   (let [show-create-form? (r/atom false)]
@@ -173,7 +213,8 @@
 
 (defvc list-details
   [list-id]
-  (let [show-delete-confirm? (r/atom false)]
+  (let [show-delete-confirm? (r/atom false)
+        show-rename-form? (r/atom false)]
     (fn [list-id]
       (set-active-breadcrumb! :lists)
       (let [list (view-cursor :list-info list-id (auth/get-username))]
@@ -197,6 +238,9 @@
               [:span
                [bs/DropdownButton {:title "Actions"}
                 [bs/MenuItem
+                 {:on-click #(reset! show-rename-form? true)}
+                 "Change List Name"]
+                [bs/MenuItem
                  {:on-click #(js/alert "TODO: Copy to Owned")}
                  "Copy to Owned Collection"]
                 (if (auth/auth-required?)
@@ -214,6 +258,8 @@
                " "
                (if-not (:is_public @list) [:span.large-font [bs/Label {:bsStyle "danger"} "Private"] " "])
                (if (:require_qualities @list) [:span.large-font [bs/Label {:bsStyle "primary"} "Card Qualities"] " "])])]
+           (if @show-rename-form?
+             [rename-list-form show-rename-form? list-id (:name @list)])
            [confirm-modal
             show-delete-confirm?
             {:title "Confirm Delete"
