@@ -245,12 +245,10 @@
                  "Copy to Owned Collection"]
                 (if (auth/auth-required?)
                   [bs/MenuItem
-                   {:bsStyle  "warning"
-                    :on-click #(change-list-visibility! list-id (not (:is_public @list)))}
+                   {:on-click #(change-list-visibility! list-id (not (:is_public @list)))}
                    (if (:is_public @list) "Make Private" "Make Public")])
                 [bs/MenuItem
-                 {:bsStyle  "danger"
-                  :on-click #(reset! show-delete-confirm? true)}
+                 {:on-click #(reset! show-delete-confirm? true)}
                  "Delete"]]])]
            [bs/PageHeader (:name @list)
             (if (auth/can-modify-data?)
