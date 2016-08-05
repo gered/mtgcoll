@@ -240,7 +240,7 @@
                 [bs/MenuItem
                  {:on-click #(reset! show-rename-form? true)}
                  "Change List Name"]
-                [bs/MenuItem
+                #_[bs/MenuItem
                  {:on-click #(js/alert "TODO: Copy to Owned")}
                  "Copy to Owned Collection"]
                 (if (auth/auth-required?)
