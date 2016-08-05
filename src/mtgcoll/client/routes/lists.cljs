@@ -9,7 +9,7 @@
     [mtgcoll.common :as c]
     [mtgcoll.client.auth :as auth]
     [mtgcoll.client.page :refer [set-active-breadcrumb! set-error!]]
-    [mtgcoll.client.utils :refer [get-field-value]]
+    [mtgcoll.client.utils :refer [get-field-value format-date]]
     [mtgcoll.client.components.cards :refer [card-list-table ->card-list-pager]]
     [mtgcoll.client.components.search :as s]
     [mtgcoll.client.components.utils :refer [click-to-edit-textarea markdown confirm-modal]]))
@@ -98,18 +98,20 @@
               {:bordered true :striped true :condensed true :hover true}
               [:thead
                [:tr
-                [:th.col-sm-7 "Name"]
-                [:th.col-sm-3 "Card Qualities?"]
+                [:th.col-sm-6 "Name"]
+                [:th.col-sm-2 "Created At"]
+                [:th.col-sm-2 "Card Qualities?"]
                 [:th.col-sm-2 "Cards"]]]
               [:tbody
                (doall
                  (map
-                   (fn [{:keys [id name is_public require_qualities num_cards]}]
+                   (fn [{:keys [id name is_public require_qualities created_at num_cards]}]
                      ^{:key id}
                      [:tr
                       (if (and (auth/authenticated?) (not is_public))
                         {:class "warning"})
                       [:td [:a {:href (->url "#/list/" id)} [:div name]]]
+                      [:td (format-date (new js/Date created_at))]
                       [:td (if require_qualities "Yes" "")]
                       [:td num_cards]])
                    @lists))]]))]))))

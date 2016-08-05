@@ -4,7 +4,7 @@
   [list-id user-id]
   (let [list-id      (int list-id)
         public-only? (nil? user-id)]
-    ["select name, notes, is_public, require_qualities
+    ["select name, notes, is_public, require_qualities, created_at
       from lists
       where id = ?
             and is_public in (true, ?)"
@@ -27,6 +27,7 @@
              l.name,
              l.is_public,
              l.require_qualities,
+             l.created_at,
              (
                  select coalesce(sum(lc.quantity), 0)
                  from lists_card_quantities lc
