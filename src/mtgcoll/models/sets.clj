@@ -5,4 +5,4 @@
 
 (defn get-set-codes
   []
-  (seq (sql/query @db ["select code, gatherer_code from sets order by code"])))
+  (seq (sql/query db ["select code, gatherer_code from sets order by code"])))

@@ -1,10 +1,11 @@
 (ns mtgcoll.views.core
   (:require
     [clojure.tools.logging :as log]
-    [views.reagent.sente.server :as vr]
-    [views.core :as views]
-    [views.sql.view :refer [view]]
     [honeysql.format :as fmt]
+    [mount.core :refer [defstate]]
+    [views.core :as views]
+    [views.reagent.sente.server :as vr]
+    [views.sql.view :refer [view]]
     [mtgcoll.db :refer [db]]
     [mtgcoll.auth :as auth]
     [mtgcoll.views.sente :refer [sente-socket]]
@@ -15,11 +16,9 @@
     [mtgcoll.views.functions.prices :as prices]
     [mtgcoll.views.functions.statistics :as statistics]))
 
-(defonce view-system (atom {}))
-
 (defn get-db
   [_]
-  @db)
+  db)
 
 (def views
   [(view :card-info get-db #'cards/card-info {:result-set-fn first})
@@ -94,17 +93,15 @@
         user-profile (get-in request [:session :user])]
     (log/warn "Unauthorized view subscription attempt: " view-id ", " parameters " - user profile: " user-profile)))
 
-(defn init!
-  []
-  (vr/init! view-system @sente-socket
-            {:views                     views
-             :use-default-sente-router? true
-             :auth-fn                   view-auth-fn
-             :on-unauth-fn              view-on-unauth-fn}))
-
-(defn shutdown!
-  []
-  (views/shutdown! view-system))
+(defstate view-system
+  :start (let [vs (atom nil)]
+           (vr/init! vs sente-socket
+                     {:views                     views
+                      :use-default-sente-router? true
+                      :auth-fn                   view-auth-fn
+                      :on-unauth-fn              view-on-unauth-fn})
+           vs)
+  :stop  (views/shutdown! view-system))
 
 (defmethod fmt/fn-handler "ilike"
   [_ col qstr]

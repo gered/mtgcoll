@@ -41,22 +41,24 @@
   (str "Invalid options/arguments.\n"
        (string/join \newline errors)))
 
-(defn- exit
-  [status msg]
-  (println msg)
-  (System/exit status))
+(defn show-help!
+  [{:keys [summary] :as parsed-cli}]
+  (println (->usage-string summary)))
 
-(defn parse-cli-args
+(defn show-error!
+  [{:keys [errors] :as parsed-cli}]
+  (println (->error-msg errors)))
+
+(defn parse-args
   [args]
   (let [{:keys [options arguments errors summary] :as parsed-cli} (cli/parse-opts args cli-options)
         arguments     (or (seq arguments) ["web"])
         action        (first arguments)
         arguments     (rest arguments)
         valid-action? (boolean (some #{action} (map first actions)))]
-    (cond
-      (:help options)     (exit 0 (->usage-string summary))
-      (not valid-action?) (exit 1 (->usage-string summary))
-      errors              (exit 1 (->error-msg errors)))
-    {:options   options
-     :action    (keyword action)
-     :arguments arguments}))
+    {:options       options
+     :action        (keyword action)
+     :arguments     arguments
+     :summary       summary
+     :errors        errors
+     :valid-action? valid-action?}))

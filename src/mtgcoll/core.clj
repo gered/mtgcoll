@@ -2,50 +2,28 @@
   (:gen-class)
   (:require
     [clojure.tools.logging :as log]
+    [clojure.tools.nrepl.server :as nrepl-server]
     [compojure.core :refer [routes GET POST]]
     [compojure.route :as route]
     [immutant.web :as immutant]
+    [mount.core :as mount :refer [defstate]]
     [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
     [ring.middleware.format :refer [wrap-restful-format]]
+    [ring.middleware.reload :refer [wrap-reload]]
     [ring-ttl-session.core :refer [ttl-memory-store]]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
-
-    [mtgcoll.cli :refer [parse-cli-args]]
+    [mtgcoll.cli :as cli]
     [mtgcoll.config :as config]
     [mtgcoll.db :as db]
     [mtgcoll.models.mtgjson :refer [load-mtgjson-data!]]
     [mtgcoll.scrapers.image-assets :refer [download-gatherer-set-images! download-gatherer-symbol-images!]]
     [mtgcoll.scrapers.prices :refer [update-prices!]]
-    [mtgcoll.views.core :as views]
     [mtgcoll.views.sente :as sente]
     [mtgcoll.routes.main-page :refer [main-page-routes]]
     [mtgcoll.routes.images :refer [image-routes]]
     [mtgcoll.routes.collection :refer [collection-routes]]
     [mtgcoll.routes.lists :refer [list-routes]]
     [mtgcoll.routes.auth :refer [auth-routes]]))
-
-(defn init
-  []
-  (log/info "Starting up web application ...")
-
-  (when (config/get :dev?)
-    (log/info "Running in development environment."))
-
-  (db/setup-config!)
-  (db/verify-connection)
-  (sente/init!)
-  (views/init!)
-
-  (log/info "Application init finished."))
-
-(defn shutdown
-  []
-  (log/info "Shutting down ...")
-
-  (views/shutdown!)
-  (sente/shutdown!)
-
-  (log/info "Application stopped."))
 
 (def handler
   (-> (routes
@@ -60,55 +38,71 @@
       (sente/wrap-sente "/chsk")
       (wrap-defaults (assoc-in site-defaults [:session :store] (ttl-memory-store (* 60 30))))))
 
-(defn start-server!
-  []
-  (init)
-  (let [options (merge
-                  {:port         8080
-                   :host         "localhost"
-                   :path         "/"
-                   :virtual-host nil
-                   :dispatch?    true}
-                  (config/get :web))]
-    (if (config/get :dev?)
-      ; why the fuck would anyone assume that if you are running in "development mode" you automatically
-      ; want a new browser window/tab to be opened each time the web server is started? AND not provide an
-      ; option to disable this annoying-as-fuck behaviour.
-      ; i mean, jesus christ, it's obviously _not_ possible that i might already have a browser open that i
-      ; might prefer to keep reusing ... !
-      (with-redefs [clojure.java.browse/browse-url (fn [_])]
-        (immutant/run-dmc #'handler options))
-      (immutant/run #'handler options))))
+(defstate ^{:on-reload :noop} http-server
+  :start (let [options (merge
+                         {:host         "localhost"
+                          :port         8080
+                          :path         "/"
+                          :virtual-host nil
+                          :dispatch?    nil}
+                         (config/get :http))]
+           (log/info "Starting HTTP server: " options)
+           (immutant/run (if (config/get :dev?)
+                           (wrap-reload #'handler)
+                           #'handler)
+                         options))
+  :stop (do
+          (log/info "Stopping HTTP server")
+          (immutant/stop http-server)))
 
-(defn stop-server!
-  []
-  (if (immutant/stop)
-    (shutdown)))
+(defstate ^{:on-reload :noop} repl-server
+  :start (when-let [nrepl-config (config/get :nrepl)]
+           (let [port (or (:port nrepl-config) 4000)]
+             (log/info "Starting nREPL server on port: " port)
+             (nrepl-server/start-server :port port)))
+  :stop (when repl-server
+          (log/info "Stopping nREPL server")
+          (nrepl-server/stop-server repl-server)))
 
 (defn -main
   [& args]
-  (let [{:keys [options action arguments]} (parse-cli-args args)]
-    (config/load! (:config options))
-    (db/setup-config!)
-    (db/verify-connection)
-    (case action
-      :web
+  (let [{:keys [options action arguments errors valid-action?] :as args} (cli/parse-args args)]
+    (cond
+      (or (:help options)
+          (not valid-action?))
+      (cli/show-help! args)
+
+      errors
       (do
-        (start-server!)
-        (.addShutdownHook (Runtime/getRuntime) (Thread. ^Runnable stop-server!)))
+        (cli/show-error! errors)
+        (System/exit 1))
 
-      :setup-db
-      (db/initialize-database!)
+      :else
+      (case action
+        :web
+        (do
+          (mount/start-with-args args)
+          (.addShutdownHook (Runtime/getRuntime) (Thread. ^Runnable mount/stop)))
 
-      :load-json
-      (load-mtgjson-data! (first arguments))
+        :setup-db
+        (do
+          (mount/start-with-args args #'config/app-config, #'db/db)
+          (db/initialize-database!))
 
-      :scrape-prices
-      (if (seq arguments)
-        (update-prices! (first arguments))
-        (update-prices!))
+        :load-json
+        (do
+          (mount/start-with-args args #'config/app-config, #'db/db)
+          (load-mtgjson-data! (first arguments)))
 
-      :scrape-images
-      (do
-        (download-gatherer-set-images!)
-        (download-gatherer-symbol-images!)))))
+        :scrape-prices
+        (do
+          (mount/start-with-args args #'config/app-config, #'db/db)
+          (if (seq arguments)
+            (update-prices! (first arguments))
+            (update-prices!)))
+
+        :scrape-images
+        (do
+          (mount/start-with-args args #'config/app-config, #'db/db)
+          (download-gatherer-set-images!)
+          (download-gatherer-symbol-images!))))))

@@ -1,18 +1,15 @@
 (ns mtgcoll.scrapers.prices
   (:require
-    [views.core :as views]
     [views.sql.core :refer [hint-type]]
     [mtgcoll.views.core :refer [view-system]]
     [mtgcoll.models.cards :as cards]
     [mtgcoll.models.sets :as sets]
     [mtgcoll.scrapers.protocols :refer [scrape]]
-    [mtgcoll.scrapers.registered :refer [price-scrapers]]
-    [mtgcoll.db :as db]))
+    [mtgcoll.scrapers.registered :refer [price-scrapers]]))
 
 (defn update-prices!
   ([source]
    (println "Updating" source "card prices.")
-   (db/verify-connection)
    (if-let [price-scraper (get price-scrapers source)]
      (do
        (doseq [{:keys [code gatherer_code] :as set} (sets/get-set-codes)]

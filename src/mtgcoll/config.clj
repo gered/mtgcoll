@@ -1,14 +1,20 @@
 (ns mtgcoll.config
   (:refer-clojure :exclude [get])
   (:require
-    [config.core :as cfg]))
+    [clojure.java.io :as io]
+    [clojure.tools.logging :as log]
+    [config.core :as config]
+    [mount.core :as mount :refer [defstate]]))
 
-(defonce app-config (atom {}))
-
-(defn load!
-  [config-file]
-  (reset! app-config (cfg/load (or config-file (System/getenv "config")))))
+(defstate app-config
+  :start (let [config-file (get-in (mount/args) [:options :config])]
+           (if (and config-file
+                    (.exists (io/file config-file)))
+             (do
+               (log/info (str "Loading app config from " config-file))
+               (config/load config-file {}))
+             (throw (Exception. "No config file specified or does not exist.")))))
 
 (defn get
   [& ks]
-  (apply cfg/get @app-config ks))
+  (apply config/get app-config ks))

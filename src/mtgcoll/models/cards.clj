@@ -6,9 +6,9 @@
 
 (defn get-card-image-info
   [card-id]
-  (sql/query @db ["select set_code, image_name
-                   from cards
-                   where id = ?" card-id]
+  (sql/query db ["select set_code, image_name
+                  from cards
+                  where id = ?" card-id]
              {:result-set-fn first}))
 
 (defn get-matching-card-ids
@@ -26,13 +26,13 @@
                                    [:= :number number]))
                          (remove nil? x)
                          (vec x))}]
-    (seq (sql/query @db (hsql/format q) {:row-fn :id}))))
+    (seq (sql/query db (hsql/format q) {:row-fn :id}))))
 
 (defn update-price!
   [card-id price-source price online?]
   ;; written assuming postgresql server is _not_ 9.5+ (so, without access to UPSERT functionality)
   (sql/with-db-transaction
-    [dt @db]
+    [dt db]
     (let [num-updates (first
                         (sql/execute!
                           dt

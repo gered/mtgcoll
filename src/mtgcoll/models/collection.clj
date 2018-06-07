@@ -12,7 +12,7 @@
         public-only? (nil? user-id)]
     (with-view-transaction
       view-system
-      [dt @db]
+      [dt db]
       (if-not (first (jdbc/query dt ["select count(*) from lists where id = ? and is_public in (true, ?)" list-id public-only?]))
         (throw (new Exception (str "Not authorized to update list:" list-id)))
         (let [num-updates (first

@@ -30,7 +30,7 @@
 
 (defn- get-gatherer-set-codes
   []
-  (sql/query @db ["select code, gatherer_code from sets order by code"]))
+  (sql/query db ["select code, gatherer_code from sets order by code"]))
 
 (defn- download-set-image
   [size {:keys [code gatherer_code]}]

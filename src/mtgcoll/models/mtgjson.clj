@@ -26,7 +26,7 @@
   (doseq [[_ m] json-data]
     (try
       (sql/insert!
-        @db
+        db
         :sets
         {:code                  (:code m)
          :name                  (:name m)
@@ -72,7 +72,7 @@
             variations (:variations card)]
         (try
           (sql/with-db-transaction
-            [db-con @db]
+            [db-con db]
             (sql/insert!
               db-con
               :cards
@@ -127,7 +127,7 @@
   []
   (println "Filling in card IDs for card variations")
   (sql/execute!
-    @db
+    db
     ["update card_variations
       set variant_card_id = (select c.id
                              from cards c
