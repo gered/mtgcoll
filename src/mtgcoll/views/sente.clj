@@ -4,7 +4,7 @@
     [taoensso.sente :as sente]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]))
 
-(defstate sente-socket
+(defstate ^{:on-reload :noop} sente-socket
   :start (sente/make-channel-socket!
            sente-web-server-adapter
            {:user-id-fn        (fn [request] (get-in request [:params :client-id]))

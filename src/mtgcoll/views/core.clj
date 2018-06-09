@@ -93,7 +93,7 @@
         user-profile (get-in request [:session :user])]
     (log/warn "Unauthorized view subscription attempt: " view-id ", " parameters " - user profile: " user-profile)))
 
-(defstate view-system
+(defstate ^{:on-reload :noop} view-system
   :start (let [vs (atom nil)]
            (vr/init! vs sente-socket
                      {:views                     views

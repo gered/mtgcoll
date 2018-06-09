@@ -6,12 +6,12 @@
     [compojure.core :refer [routes GET POST]]
     [compojure.route :as route]
     [immutant.web :as immutant]
+    [immutant.web.middleware :refer [wrap-session]]
     [mount.core :as mount :refer [defstate]]
     [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.reload :refer [wrap-reload]]
     [ring.middleware.webjars :refer [wrap-webjars]]
-    [ring-ttl-session.core :refer [ttl-memory-store]]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
     [mtgcoll.cli :as cli]
     [mtgcoll.config :as config]
@@ -26,18 +26,21 @@
     [mtgcoll.routes.lists :refer [list-routes]]
     [mtgcoll.routes.auth :refer [auth-routes]]))
 
+(def app-routes
+  (routes
+    auth-routes
+    collection-routes
+    list-routes
+    image-routes
+    main-page-routes
+    (route/not-found "not found")))
+
 (def handler
-  (-> (routes
-        auth-routes
-        collection-routes
-        list-routes
-        image-routes
-        main-page-routes
-        (route/resources "/")
-        (route/not-found "not found"))
+  (-> #'app-routes
       (wrap-restful-format :formats [:json-kw])
       (sente/wrap-sente "/chsk")
-      (wrap-defaults (assoc-in site-defaults [:session :store] (ttl-memory-store (* 60 30))))
+      (wrap-defaults (assoc-in site-defaults [:session] false))
+      (wrap-session)
       (wrap-webjars)))
 
 (defstate ^{:on-reload :noop} http-server

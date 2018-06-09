@@ -20,7 +20,6 @@
                  [gered/webtools.reagent "0.1.1"]
                  [hiccup "1.0.5"]
                  [honeysql "0.7.0"]
-                 [luminus/ring-ttl-session "0.3.1"]
                  [mount "0.1.12"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
