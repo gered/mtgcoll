@@ -17,13 +17,15 @@
   [card-id quality foil? list-id]
   (ajax/POST (->url "/collection/add")
              :params {:card-id card-id :quality quality :foil foil? :list-id list-id}
-             :on-error #(set-error! "Server error while adding card to inventory.")))
+             :on-error (fn [{:keys [response]}]
+                         (set-error! (str "Server error while updating card inventory: " (get response "message"))))))
 
 (defn on-remove-card
   [card-id quality foil? list-id]
   (ajax/POST (->url "/collection/remove")
              :params {:card-id card-id :quality quality :foil foil? :list-id list-id}
-             :on-error #(set-error! "Server error while adding card to inventory.")))
+             :on-error (fn [{:keys [response]}]
+                         (set-error! (str "Server error while updating card inventory: " (get response "message"))))))
 
 (defn can-modify-inventory?
   []

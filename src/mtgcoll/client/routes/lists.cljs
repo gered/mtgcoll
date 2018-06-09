@@ -30,7 +30,8 @@
                         (reset! error "List name must be provided.")
                         (ajax/POST (->url "/lists/add")
                                    :params {:name name :public? public? :requires-qualities? requires-qualities?}
-                                   :on-error #(reset! error "Could not create list. Make sure list name is unique.")
+                                   :on-error (fn [{:keys [response]}]
+                                               (reset! error (str "Server error: " (get response "message"))))
                                    :on-success (fn [response]
                                                  (let [new-list-id (:id (clojure.walk/keywordize-keys response))]
                                                    (redirect! (str "#/list/" new-list-id))))))))
@@ -93,7 +94,8 @@
                         (reset! error "List name must be provided.")
                         (ajax/POST (->url "/lists/update-name")
                                    :params {:list-id list-id :name name}
-                                   :on-error #(reset! error "Could not update list name. Make sure the name is unique.")
+                                   :on-error (fn [{:keys [response]}]
+                                               (reset! error (str "Server error: " (get response "message"))))
                                    :on-success #(on-close)))))
         on-key-up #(if (= 13 (.-keyCode %))
                     (on-submit))]
@@ -134,7 +136,8 @@
                         (ajax/POST (->url "/collection/copy-list")
                                    :params {:source-list-id      source-list-id
                                             :destination-list-id destination-list-id}
-                                   :on-error #(reset! error "Error copying the list.")
+                                   :on-error (fn [{:keys [response]}]
+                                               (reset! error (str "Server error: " (get response "message"))))
                                    :on-success #(on-close)))))
         on-key-up #(if (= 13 (.-keyCode %))
                      (on-submit))]
@@ -176,7 +179,8 @@
           [bs/Button
            {:bsStyle "primary"
             :on-click on-submit
-            :disabled (string/blank? (:destination-list-id @values))} "OK"]
+            :disabled (string/blank? (:destination-list-id @values))}
+           "OK"]
           [bs/Button {:on-click on-close} "Cancel"]]]))))
 
 
@@ -222,19 +226,22 @@
   [list-id notes]
   (ajax/POST (->url "/lists/update-note")
              :params {:list-id list-id :note notes}
-             :on-error #(set-error! "Server error while updating list notes.")))
+             :on-error (fn [{:keys [response]}]
+                         (set-error! (str "Server error while updating list notes: " (get response "message"))))))
 
 (defn change-list-visibility!
   [list-id public?]
   (ajax/POST (->url "/lists/update-visibility")
              :params {:list-id list-id :public? public?}
-             :on-error #(set-error! "Server error while updating list public/private visibility.")))
+             :on-error (fn [{:keys [response]}]
+                         (set-error! (str "Server error while updating list public/private visibility: " (get response "message"))))))
 
 (defn delete-list!
   [list-id]
   (ajax/POST (->url "/lists/remove")
              :params {:list-id list-id}
-             :on-error #(set-error! "Server error while deleting the list.")
+             :on-error (fn [{:keys [response]}]
+                         (set-error! (str "Server error while deleting the list: " (get response "message"))))
              :on-success #(redirect! "#/lists")))
 
 (defonce list-cards-search-filters
