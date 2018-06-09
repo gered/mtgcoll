@@ -17,18 +17,22 @@
 
 (defn remove-list!
   [list-id]
-  (vexec! view-system db
-          ["delete from lists
+  (if (= 0 list-id)
+    (throw (Exception. "Cannot remove the 'Owned' list."))
+    (vexec! view-system db
+            ["delete from lists
             where id = ?"
-           (int list-id)]))
+             (int list-id)])))
 
 (defn update-list-name!
   [list-id name]
-  (vexec! view-system db
-          ["update lists
+  (if (= 0 list-id)
+    (throw (Exception. "Cannot change the name of the 'Owned' list."))
+    (vexec! view-system db
+            ["update lists
             set name = ?
             where id = ?"
-           (str name) (int list-id)]))
+             (str name) (int list-id)])))
 
 (defn update-list-note!
   [list-id note]
@@ -40,8 +44,10 @@
 
 (defn update-list-visibility!
   [list-id public?]
-  (vexec! view-system db
-          ["update lists
+  (if (= 0 list-id)
+    (throw (Exception. "Cannot change the visibility of the 'Owned' list."))
+    (vexec! view-system db
+            ["update lists
             set is_public = ?
             where id = ?"
-           (boolean public?) (int list-id)]))
+             (boolean public?) (int list-id)])))

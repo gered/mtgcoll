@@ -34,8 +34,7 @@
                  where lc.list_id = l.id
              ) as num_cards
       from lists l
-      where l.id != 0
-            and l.is_public in (true, ?)
+      where l.is_public in (true, ?)
       order by l.name"
      public-only?]))
 
@@ -44,7 +43,6 @@
   (let [public-only? (nil? user-id)]
     ["select id, name
       from lists
-      where id != 0
-            and is_public in (true, ?)
+      where is_public in (true, ?)
       order by name"
      public-only?]))
