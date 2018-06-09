@@ -3,7 +3,7 @@
     [compojure.core :refer [routes GET POST]]
     [webtools.response :as response]
     [webtools.routes.core :refer [wrap-middleware]]
-    [mtgcoll.middleware :refer [wrap-authenticated]]
+    [mtgcoll.middleware :refer [wrap-api-exceptions wrap-authenticated]]
     [mtgcoll.models.lists :as lists]))
 
 (def list-routes
@@ -31,4 +31,5 @@
         (lists/update-list-visibility! list-id public?)
         (response/json {:status "ok"})))
 
+    (wrap-api-exceptions)
     (wrap-authenticated)))

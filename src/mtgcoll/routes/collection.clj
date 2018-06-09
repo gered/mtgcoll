@@ -3,7 +3,7 @@
     [compojure.core :refer [routes GET POST]]
     [webtools.response :as response]
     [webtools.routes.core :refer [wrap-middleware]]
-    [mtgcoll.middleware :refer [wrap-authenticated]]
+    [mtgcoll.middleware :refer [wrap-api-exceptions wrap-authenticated]]
     [mtgcoll.models.collection :as collection]))
 
 (def collection-routes
@@ -23,4 +23,6 @@
         (let [username (get-in request [:session :user :username])
               result   (collection/copy-list! source-list-id destination-list-id username)]
           (response/json {:status "ok"}))))
+
+    (wrap-api-exceptions)
     (wrap-authenticated)))
