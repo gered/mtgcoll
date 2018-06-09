@@ -10,6 +10,7 @@
     [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
     [ring.middleware.format :refer [wrap-restful-format]]
     [ring.middleware.reload :refer [wrap-reload]]
+    [ring.middleware.webjars :refer [wrap-webjars]]
     [ring-ttl-session.core :refer [ttl-memory-store]]
     [taoensso.sente.server-adapters.immutant :refer [sente-web-server-adapter]]
     [mtgcoll.cli :as cli]
@@ -36,7 +37,8 @@
         (route/not-found "not found"))
       (wrap-restful-format :formats [:json-kw])
       (sente/wrap-sente "/chsk")
-      (wrap-defaults (assoc-in site-defaults [:session :store] (ttl-memory-store (* 60 30))))))
+      (wrap-defaults (assoc-in site-defaults [:session :store] (ttl-memory-store (* 60 30))))
+      (wrap-webjars)))
 
 (defstate ^{:on-reload :noop} http-server
   :start (let [options (merge

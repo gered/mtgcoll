@@ -6,28 +6,21 @@
     [hiccup.page :refer [include-css include-js]]
     [hiccup.element :refer [javascript-tag]]
     [webtools.page :refer [html5 js-env-settings]]
-    [webtools.reagent.page :refer [include-bootstrap-metatags]]
     [mtgcoll.config :as config])
   (:use
     mtgcoll.utils))
-
-(defn- include-bootstrap-css
-  [& [use-bootstrap-theme?]]
-  (->> ["https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        (if use-bootstrap-theme? "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css")
-        "https://npmcdn.com/react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css"
-        "https://npmcdn.com/react-select/dist/react-select.min.css"]
-       (remove nil?)
-       (apply include-css)))
 
 (defn main-page
   [request]
   (html5
     [:head
-     [:title "MTG Web Collection"]
+     [:meta {:charset "utf-8"}]
+     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
      (anti-forgery-field)
-     (include-bootstrap-metatags)
-     (include-bootstrap-css true)
+     [:title "MTG Web Collection"]
+     (include-css "/assets/bootstrap/css/bootstrap.min.css")
+     (include-css "/assets/bootstrap/css/bootstrap-theme.min.css")
      (include-css "css/app.css")]
     [:body
      [:div#wrap
