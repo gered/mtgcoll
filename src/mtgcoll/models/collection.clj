@@ -59,3 +59,25 @@
 (defn remove-from-collection!
   [card-id quality foil? list-id user-id]
   (update-collection! card-id quality foil? list-id user-id -1))
+
+(defn copy-list!
+  [source-list-id destination-list-id user-id]
+  (let [source-list-id      (int source-list-id)
+        destination-list-id (int destination-list-id)]
+    (when (= source-list-id destination-list-id)
+      (throw (Exception. "Cannot copy list onto itself.")))
+    (jdbc/with-db-transaction
+      [dt db]
+      (let [source-has-qualities? (first (jdbc/query dt ["select require_qualities from lists where id = ?" source-list-id] {:row-fn :require_qualities}))
+            dest-has-qualities? (first (jdbc/query dt ["select require_qualities from lists where id = ?" destination-list-id] {:row-fn :require_qualities}))]
+        (when (not (or (and (not source-has-qualities?)
+                            (not dest-has-qualities?))
+                       source-has-qualities?))
+          (throw (Exception. "Invalid copy. 'Require qualities?' compatibility mismatch.")))
+        (let [source-data (jdbc/query dt ["select card_id, quality, quantity, foil from collection where list_id = ?" source-list-id])]
+          (doseq [{:keys [card_id quality quantity foil]} source-data]
+            (update-collection!* dt card_id (if dest-has-qualities? quality) foil destination-list-id quantity)))))
+    (views/put-hints! view-system
+                      [(views/hint nil #{:collection} vsql/hint-type)
+                       (views/hint nil #{:lists} vsql/hint-type)])
+    true))

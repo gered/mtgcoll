@@ -118,6 +118,68 @@
         [bs/Button {:bsStyle "primary" :on-click on-submit} "OK"]
         [bs/Button {:on-click on-close} "Cancel"]]])))
 
+(defvc copy-list-form
+  [visibility-atom source-list-id source-has-qualities?]
+  (let [values    (r/atom {:destination-list-id nil})
+        error     (r/atom nil)
+        on-close  (fn []
+                    (reset! values nil)
+                    (reset! error nil)
+                    (reset! visibility-atom false))
+        on-submit (fn []
+                    (reset! error nil)
+                    (let [{:keys [destination-list-id]} @values]
+                      (if (string/blank? name)
+                        (reset! error "Copy destination list must be selected.")
+                        (ajax/POST (->url "/collection/copy-list")
+                                   :params {:source-list-id      source-list-id
+                                            :destination-list-id destination-list-id}
+                                   :on-error #(reset! error "Error copying the list.")
+                                   :on-success #(on-close)))))
+        on-key-up #(if (= 13 (.-keyCode %))
+                     (on-submit))]
+    (fn []
+      (let [lists (view-cursor :lists-list (auth/get-username))]
+        [bs/Modal
+         {:show    (boolean @visibility-atom)
+          :on-hide #(reset! visibility-atom false)}
+         [bs/Modal.Header [bs/Modal.Title "Copy to Other List"]]
+         [bs/Modal.Body
+          (if @error
+            [bs/Alert {:bsStyle "danger"} @error])
+          [bs/Form {:horizontal true}
+           [bs/FormGroup
+            [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Destination"]]
+            [bs/Col {:sm 6}
+             [bs/FormControl
+              {:component-class "select"
+               :value           (or (:destination-list-id @values) "")
+               :on-change       #(let [value (get-field-value %)]
+                                   (swap! values assoc :destination-list-id
+                                          (if (string/blank? value)
+                                            nil
+                                            (int value))))
+               :on-key-up       on-key-up}
+              (->> @lists
+                   (filter
+                     (fn [{:keys [id require_qualities]}]
+                       (and (not= id source-list-id)
+                            (or (and (not source-has-qualities?)
+                                     (not require_qualities))
+                                source-has-qualities?))))
+                   (map
+                     (fn [{:keys [id name]}]
+                       ^{:key id}
+                       [:option {:value id} name]))
+                   (cons ^{:key ""} [:option ""]))]]]]]
+         [bs/Modal.Footer
+          [bs/Button
+           {:bsStyle "primary"
+            :on-click on-submit
+            :disabled (string/blank? (:destination-list-id @values))} "OK"]
+          [bs/Button {:on-click on-close} "Cancel"]]]))))
+
+
 (defvc lists-list
   []
   (let [show-create-form? (r/atom false)]
@@ -214,7 +276,8 @@
 (defvc list-details
   [list-id]
   (let [show-delete-confirm? (r/atom false)
-        show-rename-form? (r/atom false)]
+        show-rename-form? (r/atom false)
+        show-copy-form? (r/atom false)]
     (fn [list-id]
       (set-active-breadcrumb! :lists)
       (let [list (view-cursor :list-info list-id (auth/get-username))]
@@ -238,24 +301,29 @@
               [:span
                [bs/DropdownButton {:title "Actions"}
                 [bs/MenuItem
-                 {:on-click #(reset! show-rename-form? true)}
-                 "Change List Name"]
-                #_[bs/MenuItem
-                 {:on-click #(js/alert "TODO: Copy to Owned")}
-                 "Copy to Owned Collection"]
-                (if (auth/auth-required?)
+                 {:on-click #(reset! show-copy-form? true)}
+                 "Copy To Other List"]
+                (if (not= 0 list-id)
+                  [bs/MenuItem
+                   {:on-click #(reset! show-rename-form? true)}
+                   "Change List Name"])
+                (if (and (auth/auth-required?)
+                         (not= 0 list-id))
                   [bs/MenuItem
                    {:on-click #(change-list-visibility! list-id (not (:is_public @list)))}
                    (if (:is_public @list) "Make Private" "Make Public")])
-                [bs/MenuItem
-                 {:on-click #(reset! show-delete-confirm? true)}
-                 "Delete"]]])]
+                (if (not= 0 list-id)
+                  [bs/MenuItem
+                   {:on-click #(reset! show-delete-confirm? true)}
+                   "Delete"])]])]
            [bs/PageHeader (:name @list)
             (if (auth/can-modify-data?)
               [:span
                " "
                (if-not (:is_public @list) [:span.large-font [bs/Label {:bsStyle "danger"} "Private"] " "])
                (if (:require_qualities @list) [:span.large-font [bs/Label {:bsStyle "primary"} "Card Qualities"] " "])])]
+           (if @show-copy-form?
+             [copy-list-form show-copy-form? list-id (:require_qualities @list)])
            (if @show-rename-form?
              [rename-list-form show-rename-form? list-id (:name @list)])
            [confirm-modal

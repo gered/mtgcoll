@@ -17,5 +17,10 @@
       (POST "/collection/remove" [card-id quality foil list-id :as request]
         (let [username (get-in request [:session :user :username])
               result   (collection/remove-from-collection! card-id quality foil list-id username)]
+          (response/json {:status "ok"})))
+
+      (POST "/collection/copy-list" [source-list-id destination-list-id :as request]
+        (let [username (get-in request [:session :user :username])
+              result   (collection/copy-list! source-list-id destination-list-id username)]
           (response/json {:status "ok"}))))
     (wrap-authenticated)))
