@@ -82,7 +82,7 @@
                                                                               :output-to     "resources/public/cljs/app.js"
                                                                               :pretty-print  false}}}}}}
 
-  :aliases       {"launch"   ["run" "--" "--config" "my-config.edn"]
+  :aliases       {"rundev"   ["run" "--" "--config" "my-config.edn"]
                   "uberjar"  ["do" ["clean"] ["uberjar"]]
                   "cljsdev"  ["do" ["cljsbuild" "once"] ["cljsbuild" "auto"]]
                   "migrate"  ["run" "-m" "user/migrate" "--" "--config" "my-config.edn"]
