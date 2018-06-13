@@ -14,9 +14,10 @@
      (do
        (doseq [{:keys [code gatherer_code] :as set} (sets/get-set-codes)]
          (println "Scraping prices for set:" code (if gatherer_code (str "(" gatherer_code ")") ""))
-         (let [{:keys [source prices normalized-name?]} (scrape price-scraper set)]
-           (if prices
-             (cards/update-prices! source prices {:normalized-name? normalized-name?})
+         (let [{:keys [source prices normalized-name? multiverse-id?]} (scrape price-scraper set)]
+           (if (seq prices)
+             (cards/update-prices! source prices {:normalized-name? normalized-name?
+                                                  :multiverse-id?   multiverse-id?})
              (println "Could not obtain prices for set:" code (if gatherer_code (str "(" gatherer_code ")") ""))))))
      (println "No price scraper \"" source "\" found.")))
   ([]

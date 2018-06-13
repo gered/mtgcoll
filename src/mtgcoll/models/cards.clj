@@ -28,6 +28,25 @@
                          (vec x))}]
     (seq (sql/query db (hsql/format q) {:row-fn :id}))))
 
+(defn get-card-id-by-multiverse
+  [multiverse-id set-code & [card-name split?]]
+  (seq
+    (if split?
+      (sql/query db ["select id
+                      from cards
+                      where multiverseid = ?
+                            and set_code = ?
+                            and name = ?
+                            and layout = 'split'"
+                     multiverse-id set-code card-name]
+                 {:row-fn :id})
+      (sql/query db ["select id
+                      from cards
+                      where multiverseid = ?
+                            and set_code = ?"
+                     multiverse-id set-code]
+                 {:row-fn :id}))))
+
 (defn update-price!
   [card-id price-source price online?]
   ;; written assuming postgresql server is _not_ 9.5+ (so, without access to UPSERT functionality)
@@ -55,11 +74,13 @@
         num-updates))))
 
 (defn update-prices!
-  [price-source prices & [{:keys [normalized-name?]}]]
-  (doseq [{:keys [card-name online? set-code price] :as card-price} prices]
-    (if-let [card-ids (get-matching-card-ids card-name set-code
-                                             {:split?           (:split? card-price)
-                                              :normalized-name? normalized-name?})]
+  [price-source prices & [{:keys [normalized-name? multiverse-id?]}]]
+  (doseq [{:keys [card-name online? set-code price multiverseid split?] :as card-price} prices]
+    (if-let [card-ids (if multiverse-id?
+                        (get-card-id-by-multiverse multiverseid set-code card-name split?)
+                        (get-matching-card-ids card-name set-code
+                                               {:split?           split?
+                                                :normalized-name? normalized-name?}))]
       (doseq [card-id card-ids]
         (update-price! card-id price-source price online?))
       (println "no card match found for:" card-name "," set-code))))
