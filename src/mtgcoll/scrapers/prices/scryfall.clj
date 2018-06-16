@@ -14,7 +14,7 @@
   [{:keys [code]}]
   (loop [cards []
          page  1]
-    (let [url    (str "https://api.scryfall.com/cards/search?order=cmc&q=e:" code (if (> page 1) (str "&page=" page)))
+    (let [url    (str "https://api.scryfall.com/cards/search?order=cmc&q=e:" code "+unique:prints" (if (> page 1) (str "&page=" page)))
           result (http/get url http-options)]
       (Thread/sleep 200)
       (if (= 200 (:status result))
