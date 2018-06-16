@@ -234,9 +234,13 @@
      [widget-row [big-number-statistic "Complete Sets" @total-sets-owned-all-from]]
      [widget-row [big-number-statistic "Owned Foil Cards" @owned-foil-total]]]))
 
+(defn default-price-source
+  []
+  (if (exists? js/__defaultPriceSource)
+    js/__defaultPriceSource))
 
 (defonce settings (r/atom {:online?        false
-                           :pricing-source nil}))
+                           :pricing-source (default-price-source)}))
 
 (defvc stats-page
   [list-id]

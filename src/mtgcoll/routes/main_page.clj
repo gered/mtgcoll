@@ -34,7 +34,9 @@
         [:a {:href "https://github.com/gered/mtgcoll"} "GitHub Project"]]]]
      (js-env-settings "" (boolean (config/get :dev?)))
      (javascript-tag
-       (string/join "\n" [(str "var __authRequired = " (boolean (seq (config/get :users))))]))
+       (string/join "\n" [(str "var __authRequired = " (boolean (seq (config/get :users))) ";")]))
+     (if-let [default-price-source (config/get :default-price-source)]
+       (javascript-tag (str "var __defaultPriceSource = '" default-price-source "';")))
      (include-js "cljs/app.js")]))
 
 (def main-page-routes
