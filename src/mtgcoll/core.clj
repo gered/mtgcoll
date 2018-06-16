@@ -103,7 +103,7 @@
         (do
           (mount/start-with-args args #'config/app-config, #'db/db)
           (if (seq arguments)
-            (update-prices! (first arguments))
+            (update-prices! (keyword (first arguments)))
             (update-prices!)))
 
         :scrape-images
