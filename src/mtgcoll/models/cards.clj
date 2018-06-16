@@ -76,11 +76,13 @@
 (defn update-prices!
   [price-source prices & [{:keys [normalized-name? multiverse-id?]}]]
   (doseq [{:keys [card-name online? set-code price multiverseid split?] :as card-price} prices]
-    (if-let [card-ids (if multiverse-id?
-                        (get-card-id-by-multiverse multiverseid set-code card-name split?)
-                        (get-matching-card-ids card-name set-code
-                                               {:split?           split?
-                                                :normalized-name? normalized-name?}))]
-      (doseq [card-id card-ids]
-        (update-price! card-id price-source price online?))
-      (println "no card match found for:" card-name "," set-code))))
+    (if price
+      (if-let [card-ids (if multiverse-id?
+                          (get-card-id-by-multiverse multiverseid set-code card-name split?)
+                          (get-matching-card-ids card-name set-code
+                                                 {:split?           split?
+                                                  :normalized-name? normalized-name?}))]
+        (doseq [card-id card-ids]
+          (update-price! card-id price-source price online?))
+        (println "no card match found for:" card-name "," set-code))
+      (println "skipping over null price for:" card-name "," set-code))))
