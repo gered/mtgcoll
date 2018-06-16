@@ -406,7 +406,7 @@
   (let [online?      (boolean online?)
         list-id      (int list-id)
         public-only? (nil? user-id)]
-    ["select c.id, c.name, c.set_code, cp.price
+    ["select distinct c.id, c.name, c.set_code, cp.price
       from cards c
       join card_prices cp on c.id = cp.card_id
       join collection cl on c.id = cl.card_id
