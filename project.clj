@@ -28,12 +28,12 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [org.clojure/tools.nrepl "0.2.13"]
                  [org.immutant/web "2.1.9"]
-                 [org.postgresql/postgresql "9.4.1208.jre7"]
+                 [org.postgresql/postgresql "42.5.4"]
                  [org.webjars/bootstrap "3.3.6"]
                  [ragtime "0.6.0"]
                  [reagent "0.6.0"]
                  [ring "1.6.3"]
-                 [ring-middleware-format "0.7.0"]
+                 [ring-middleware-format "0.7.5"]
                  [ring-webjars "0.2.0"]
                  [ring/ring-defaults "0.3.1" :exclusions [javax.servlet/servlet-api]]
                  [secretary "1.2.3"]
@@ -78,7 +78,7 @@
                             :omit-source    true
                             :cljsbuild      {:jar      true
                                              :builds   {:main
-                                                        {:compiler ^:replace {:optimizations :advanced
+                                                        {:compiler ^:replace {:optimizations :simple ; :advanced breaks for some reason now. what the fuck
                                                                               :output-to     "resources/public/cljs/app.js"
                                                                               :pretty-print  false}}}}}}
 
